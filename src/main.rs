@@ -16,15 +16,11 @@ fn main() -> Result<()> {
     // a parent process with console attached, we output logs
     // to the terminal.
     #[cfg(windows)]
-    {
-        use qrcode_gen::windows::try_attach_console;
-
-        _ = try_attach_console();
-    }
+    let _ = qrcode_gen::windows::try_attach_console();
 
     // We filter log levels at compile-time.
     spdlog::default_logger().set_level_filter(LevelFilter::All);
-
+    // color-eyre would not enable VT100 support on Windows
     color_eyre::install()?;
 
     Ok(App::builder()
