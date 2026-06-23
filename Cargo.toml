@@ -1,5 +1,3 @@
-cargo-features = ["panic-immediate-abort"]
-
 [package]
 name = "qrcode-gen"
 version = "0.1.0"
@@ -18,7 +16,7 @@ winio = { version = "0.12.0-rc.5", features = ["win32-dark-mode"] }
 lto = true
 codegen-units = 1
 # reduce binary size at the cost of abort
-panic = "immediate-abort"
+panic = "abort"
 # optimize for smaller size
 opt-level = "s"
 # full debuginfo too bloated to package

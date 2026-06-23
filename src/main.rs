@@ -9,7 +9,6 @@ use winio::prelude::*;
 mod windows;
 
 type Result<T> = std::result::Result<T, color_eyre::Report>;
-
 const APP_ID: &str = "io.github.mokurin000.qrcode_gen";
 static STARTUP_TIME: LazyLock<Instant> = LazyLock::new(Instant::now);
 
@@ -39,8 +38,10 @@ fn main() -> Result<()> {
     #[cfg(windows)]
     {
         _ = windows::try_attach_console();
-        _ = windows::setup_virtual_terminal();
+        windows::setup_virtual_terminal();
     }
+
+    color_eyre::install()?;
 
     Ok(App::builder()
         .name(APP_ID)
@@ -75,7 +76,7 @@ impl Component for MainModel {
         window.show()?;
         startup_time();
 
-        Ok(Self { window })
+        panic!()
     }
 
     async fn start(&mut self, sender: &ComponentSender<Self>) -> ! {
