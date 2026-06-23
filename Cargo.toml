@@ -8,6 +8,7 @@ color-eyre = "0.6.5"
 spdlog-rs = { version = "0.5.3", default-features = false, features = [
     "level-debug",
     "release-level-info",
+    "source-location",
 ] }
 winio = { version = "0.12.0-rc.5", features = ["win32-dark-mode"] }
 

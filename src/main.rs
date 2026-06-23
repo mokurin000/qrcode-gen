@@ -1,31 +1,19 @@
 #![windows_subsystem = "windows"]
 
-use std::{sync::LazyLock, time::Instant};
-
 use spdlog::prelude::*;
 use winio::prelude::*;
 
+use crate::startup::Startup;
+
+mod startup;
 #[cfg(windows)]
 mod windows;
 
 type Result<T> = std::result::Result<T, color_eyre::Report>;
 const APP_ID: &str = "io.github.mokurin000.qrcode_gen";
-static STARTUP_TIME: LazyLock<Instant> = LazyLock::new(Instant::now);
-
-fn startup_time() {
-    let total_us = STARTUP_TIME.elapsed().as_micros() as u32;
-    let ms = total_us / 1000;
-    let us = total_us % 1000;
-    if ms > 0 {
-        info!("Initialization finished, cost: {ms}.{us:03}ms",);
-    } else {
-        info!("Initialization finished, cost: {us}us",);
-    }
-}
 
 fn main() -> Result<()> {
-    // Trigger startup time record
-    _ = *STARTUP_TIME;
+    let init = Startup::default();
 
     // We filter log levels at compile-time.
     spdlog::default_logger().set_level_filter(LevelFilter::All);
@@ -46,7 +34,7 @@ fn main() -> Result<()> {
     Ok(App::builder()
         .name(APP_ID)
         .build()?
-        .block_on(MainModel::run_until_event(()))?)
+        .block_on(MainModel::run_until_event(init))?)
 }
 
 struct MainModel {
@@ -61,7 +49,7 @@ enum MainMessage {
 impl Component for MainModel {
     type Error = color_eyre::Report;
     type Event = ();
-    type Init<'a> = ();
+    type Init<'a> = Startup;
     type Message = MainMessage;
 
     async fn init(_init: Self::Init<'_>, _sender: &ComponentSender<Self>) -> Result<Self> {
@@ -74,7 +62,6 @@ impl Component for MainModel {
         }
 
         window.show()?;
-        startup_time();
 
         Ok(Self { window })
     }
