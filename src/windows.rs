@@ -34,19 +34,17 @@ const ENABLE_VIRTUAL_TERMINAL_PROCESSING: DWORD = 0b100;
 #[link(name = "kernel32")]
 unsafe extern "system" {
     fn AttachConsole(dwProcessId: DWORD) -> BOOL;
-}
 
-pub(crate) fn try_attach_console() -> WinResult<()> {
-    unsafe { AttachConsole(-1_i32 as u32) }.or_error("attach console")
-}
-
-#[link(name = "kernel32")]
-unsafe extern "system" {
     fn GetConsoleMode(hConsoleHandle: HANDLE, lpMode: *mut DWORD) -> BOOL;
     fn SetConsoleMode(hConsoleHandle: HANDLE, dwMode: DWORD) -> BOOL;
 }
 
-/// Try to enable VT100 support
+/// Try attach to parent process's Console.
+pub(crate) fn try_attach_console() -> WinResult<()> {
+    unsafe { AttachConsole(-1_i32 as u32) }.or_error("attach console")
+}
+
+/// Try to enable VT100 support.
 ///
 /// color-eyre would not detect this, enable VT100 to avoid garbage sequence output.
 pub(crate) fn setup_virtual_terminal() {
