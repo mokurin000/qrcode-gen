@@ -5,6 +5,9 @@ use std::{sync::LazyLock, time::Instant};
 use spdlog::prelude::*;
 use winio::prelude::*;
 
+#[cfg(windows)]
+mod windows;
+
 type Result<T> = std::result::Result<T, color_eyre::Report>;
 
 const APP_ID: &str = "io.github.mokurin000.qrcode_gen";
@@ -28,22 +31,15 @@ fn main() -> Result<()> {
     // We filter log levels at compile-time.
     spdlog::default_logger().set_level_filter(LevelFilter::All);
 
-    // Try attach to console on Windows:
-    // by default no console window pop-ups, only if we have
+    // Try attach to console on Windows.
+    //
+    // By default no console window pop-up's, only if we have
     // a parent process with console attached, we output logs
     // to the terminal.
     #[cfg(windows)]
     {
-        #[link(name = "kernel32")]
-        unsafe extern "system" {
-            fn AttachConsole(dwProcessId: u32) -> i32;
-        }
-
-        let ok = unsafe { AttachConsole(-1 as i32 as u32) } != 0;
-        if !ok {
-            let error = std::io::Error::last_os_error();
-            error!("Cannot attach to console: {error}");
-        };
+        _ = windows::try_attach_console();
+        _ = windows::setup_virtual_terminal();
     }
 
     Ok(App::builder()
