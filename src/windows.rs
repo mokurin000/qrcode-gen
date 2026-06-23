@@ -27,6 +27,7 @@ impl BOOL {
     }
 }
 
+const ENABLE_PROCESSED_OUTPUT: DWORD = 0b001;
 const ENABLE_VIRTUAL_TERMINAL_PROCESSING: DWORD = 0b100;
 
 #[link(name = "kernel32")]
@@ -45,6 +46,8 @@ unsafe extern "system" {
 }
 
 /// Try to enable VT100 support
+///
+/// color-eyre would not detect this, enable VT100 to avoid garbage sequence output.
 pub(crate) fn setup_virtual_terminal() -> WinResult<()> {
     for handle in [stdin().as_raw_handle(), stderr().as_raw_handle()] {
         unsafe {
@@ -52,6 +55,7 @@ pub(crate) fn setup_virtual_terminal() -> WinResult<()> {
 
             GetConsoleMode(handle, &mut mode).or_error("get console mode")?;
 
+            mode |= ENABLE_PROCESSED_OUTPUT;
             mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
             SetConsoleMode(handle, mode).or_error("enable VT100")?;
