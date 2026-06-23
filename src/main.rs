@@ -76,7 +76,7 @@ impl Component for MainModel {
         window.show()?;
         startup_time();
 
-        panic!()
+        Ok(Self { window })
     }
 
     async fn start(&mut self, sender: &ComponentSender<Self>) -> ! {
