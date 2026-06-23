@@ -1,0 +1,28 @@
+cargo-features = ["panic-immediate-abort"]
+
+[package]
+name = "qrcode-gen"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+color-eyre = "0.6.5"
+spdlog-rs = { version = "0.5.3", default-features = false, features = [
+    "level-debug",
+    "release-level-info",
+] }
+winio = { version = "0.12.0-rc.5", features = ["win32-dark-mode"] }
+
+[profile.release]
+# reduce binary size & optimize performance
+lto = true
+codegen-units = 1
+# reduce binary size at the cost of abort
+panic = "immediate-abort"
+# optimize for smaller size
+opt-level = "s"
+# full debuginfo too bloated to package
+debug = "limited"
+strip = "symbols"
+# .dSYM symlink on macOS, .dwp on Linux, .pdb on Windows
+split-debuginfo = "packed"
