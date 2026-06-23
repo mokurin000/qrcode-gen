@@ -1462,6 +1462,7 @@ name = "qrcode-gen"
 version = "0.1.0"
 dependencies = [
  "color-eyre",
+ "image",
  "qrcode",
  "spdlog-rs",
  "winio",
