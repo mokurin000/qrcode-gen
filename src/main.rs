@@ -10,9 +10,6 @@ use qrcode_gen::{APP_ID, Result};
 fn main() -> Result<()> {
     let init = Startup::default();
 
-    // We filter log levels at compile-time.
-    spdlog::default_logger().set_level_filter(LevelFilter::All);
-
     // Try attach to console on Windows.
     //
     // By default no console window pop-up's, only if we have
@@ -20,11 +17,13 @@ fn main() -> Result<()> {
     // to the terminal.
     #[cfg(windows)]
     {
-        use qrcode_gen::windows::{setup_virtual_terminal, try_attach_console};
+        use qrcode_gen::windows::try_attach_console;
 
         _ = try_attach_console();
-        setup_virtual_terminal();
     }
+
+    // We filter log levels at compile-time.
+    spdlog::default_logger().set_level_filter(LevelFilter::All);
 
     color_eyre::install()?;
 
