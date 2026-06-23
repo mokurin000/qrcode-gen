@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 color-eyre = "0.6.5"
+qrcode = { version = "0.14.1", default-features = false, features = ["image"] }
 spdlog-rs = { version = "0.5.3", default-features = false, features = [
     "level-debug",
     "release-level-info",

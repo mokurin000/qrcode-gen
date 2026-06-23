@@ -5,10 +5,12 @@ use crate::startup::Startup;
 
 pub struct MainModel {
     window: Child<Window>,
+    canvas: Child<Canvas>,
 }
 
 pub enum MainMessage {
     Noop,
+    ReDraw,
     Close,
 }
 
@@ -24,12 +26,16 @@ impl Component for MainModel {
             window: Window = (()) => {
                 text: "Example",
                 size: Size::new(800.0, 600.0),
-            }
+            },
+            canvas: Canvas = (&window),
         }
+
+        #[cfg(windows)]
+        window.set_backdrop(Backdrop::Mica)?;
 
         window.show()?;
 
-        Ok(Self { window })
+        Ok(Self { window, canvas })
     }
 
     async fn start(&mut self, sender: &ComponentSender<Self>) -> ! {
@@ -37,6 +43,7 @@ impl Component for MainModel {
         start! {
             sender, default: MainMessage::Noop,
             self.window => {
+                WindowEvent::Resize => MainMessage::ReDraw,
                 WindowEvent::Close => MainMessage::Close,
             }
         }
@@ -44,7 +51,7 @@ impl Component for MainModel {
 
     async fn update_children(&mut self) -> Result<bool> {
         // update the window
-        update_children!(self.window)
+        update_children!(self.window, self.canvas,)
     }
 
     async fn update(
@@ -55,6 +62,7 @@ impl Component for MainModel {
         // deal with custom messages
         match message {
             MainMessage::Noop => Ok(false),
+            MainMessage::ReDraw => Ok(true),
             MainMessage::Close => {
                 // the root component output stops the application
                 sender.output(());
@@ -65,8 +73,25 @@ impl Component for MainModel {
     }
 
     fn render(&mut self, _sender: &ComponentSender<Self>) -> Result<()> {
-        // let csize = self.window.client_size()?;
-        // adjust layout and draw widgets here
+        let csize = self.window.client_size()?;
+        self.canvas.set_size(csize)?;
+
+        let mut ctx = self.canvas.context()?;
+        let is_dark = ColorTheme::current()? == ColorTheme::Dark;
+        let brush = SolidColorBrush::new(if is_dark {
+            Color::new(255, 255, 255, 255)
+        } else {
+            Color::new(0, 0, 0, 255)
+        });
+        let pen = BrushPen::new(&brush, 1.0);
+
+        ctx.draw_line(&pen, Point::zero(), Point::new(csize.width, csize.height))?;
+        ctx.draw_line(
+            &pen,
+            Point::new(0.0, csize.height),
+            Point::new(csize.width, 0.0),
+        )?;
+
         Ok(())
     }
 
