@@ -3,16 +3,9 @@
 use spdlog::prelude::*;
 use winio::prelude::*;
 
-use crate::model::MainModel;
-use crate::startup::Startup;
-
-mod model;
-mod startup;
-#[cfg(windows)]
-mod windows;
-
-type Result<T> = std::result::Result<T, color_eyre::Report>;
-const APP_ID: &str = "io.github.mokurin000.qrcode_gen";
+use qrcode_gen::model::MainModel;
+use qrcode_gen::startup::Startup;
+use qrcode_gen::{APP_ID, Result};
 
 fn main() -> Result<()> {
     let init = Startup::default();
@@ -27,8 +20,10 @@ fn main() -> Result<()> {
     // to the terminal.
     #[cfg(windows)]
     {
-        _ = windows::try_attach_console();
-        windows::setup_virtual_terminal();
+        use qrcode_gen::windows::{setup_virtual_terminal, try_attach_console};
+
+        _ = try_attach_console();
+        setup_virtual_terminal();
     }
 
     color_eyre::install()?;

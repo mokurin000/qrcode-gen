@@ -1,8 +1,6 @@
-use std::{
-    ffi::c_void,
-    io::{stderr, stdin},
-    os::windows::io::AsRawHandle,
-};
+use std::ffi::c_void;
+use std::io::{stderr, stdin};
+use std::os::windows::io::AsRawHandle;
 
 use spdlog::{error, info};
 
@@ -13,7 +11,7 @@ type DWORD = u32;
 #[derive(Clone, Copy, PartialEq, Eq)]
 struct BOOL(i32);
 
-type WinResult<T> = Result<T, std::io::Error>;
+pub type WinResult<T> = Result<T, std::io::Error>;
 
 impl BOOL {
     fn or_error(self, case: &str) -> WinResult<()> {
@@ -40,14 +38,14 @@ unsafe extern "system" {
 }
 
 /// Try attach to parent process's Console.
-pub(crate) fn try_attach_console() -> WinResult<()> {
+pub fn try_attach_console() -> WinResult<()> {
     unsafe { AttachConsole(-1_i32 as u32) }.or_error("attach console")
 }
 
 /// Try to enable VT100 support.
 ///
 /// color-eyre would not detect this, enable VT100 to avoid garbage sequence output.
-pub(crate) fn setup_virtual_terminal() {
+pub fn setup_virtual_terminal() {
     for handle in [stdin().as_raw_handle(), stderr().as_raw_handle()] {
         unsafe {
             let mut mode: DWORD = 0;
