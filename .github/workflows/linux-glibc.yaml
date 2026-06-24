@@ -39,7 +39,12 @@ jobs:
 
       # zig for glibc baseline
       - name: Install zigbuild
-        run: cargo install cargo-zigbuild
+        run: |
+          curl -LO \
+            https://github.com/rust-cross/cargo-zigbuild/releases/latest/download/cargo-zigbuild-x86_64-unknown-linux-gnu.tar.xz
+          tar xf cargo-zigbuild-x86_64-unknown-linux-gnu.tar.xz
+          mv cargo-zigbuild-x86_64-unknown-linux-gnu/cargo-zigbuild ~/.cargo/bin/
+          rm -rf cargo-zigbuild-x86_64-unknown-linux-gnu*
 
       - name: Build
         shell: bash
@@ -48,6 +53,7 @@ jobs:
         run: |
           cargo zigbuild \
             --release \
+            --target ${{ matrix.target }} \
             --no-default-features \
             -F qt
 
