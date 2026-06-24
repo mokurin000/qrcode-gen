@@ -149,17 +149,14 @@ impl MainModel {
             Err(e) => {
                 error!("Cannot generate QR: {e}");
 
-                if let Some(Version::Micro(v)) = version {
-                    match (v, ec_level) {
-                        (1, EcLevel::L) => (),
-                        (2 | 3, EcLevel::L | EcLevel::M) => (),
-                        (4, EcLevel::L | EcLevel::M | EcLevel::Q) => (),
-                        _ => {
-                            self.foottip.set_text(format!(
-                                "Error: EC level {ec_level:?} not supported in M{v}"
-                            ))?;
-                        }
-                    };
+                if let Some(Version::Micro(v)) = version
+                    && let (1, EcLevel::M | EcLevel::Q | EcLevel::H)
+                    | (2 | 3, EcLevel::Q | EcLevel::H)
+                    | (4, EcLevel::H) = (v, ec_level)
+                {
+                    self.foottip.set_text(format!(
+                        "Error: EC level {ec_level:?} not supported in M{v}"
+                    ))?;
                 } else {
                     self.foottip.set_text(format!("Error: {e}"))?;
                 }
