@@ -7,13 +7,14 @@ use crate::startup::Startup;
 
 pub struct MainModel {
     window: Child<Window>,
-    textbox: Child<TextBox>,
+
     eclevel: Child<ComboBox>,
     version: Child<ComboBox>,
+    textbox: Child<TextBox>,
+    canvas: Child<Canvas>,
     foottip: Child<Label>,
 
-    pub(crate) canvas: Child<Canvas>,
-    pub(crate) drawing_img: Option<((u32, u32), DrawingImage)>,
+    drawing_img: Option<((u32, u32), DrawingImage)>,
 }
 
 pub enum MainMessage {
@@ -236,3 +237,5 @@ impl Component for MainModel {
         Ok(self.window.render()?)
     }
 }
+
+mod qr;
