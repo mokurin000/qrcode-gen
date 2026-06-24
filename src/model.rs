@@ -39,7 +39,7 @@ impl Component for MainModel {
             },
             canvas: Canvas = (&window),
             eclevel: ComboBox = (&window) => {
-                items: ["L 7%", "M 15%", "Q 25%", "H 30%"],
+                items: ["L (7%)", "M (15%)", "Q (25%)", "H (30%)"],
                 tooltip: "Error correction level."
             },
             version: ComboBox = (&window) => {
