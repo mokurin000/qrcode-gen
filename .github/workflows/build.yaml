@@ -19,112 +19,20 @@ permissions:
   contents: write
 
 jobs:
-  build:
-    runs-on: ${{ matrix.runner }}
+  windows-10:
+    uses: ./.github/workflows/windows-10.yaml
 
-    strategy:
-      fail-fast: false
+  windows-11:
+    uses: ./.github/workflows/windows-11.yaml
 
-      matrix:
-        include:
-          # Windows 10 x64
-          - artifact: qrcode-gen-win10-x86_64.exe
-            runner: windows-2022
-            target: x86_64-pc-windows-msvc
-
-          # Windows 10 ARM64
-          - artifact: qrcode-gen-win10-arm64.exe
-            runner: windows-2022
-            target: aarch64-pc-windows-msvc
-
-          # Windows 11 x64
-          - artifact: qrcode-gen-win11-x86_64.exe
-            runner: windows-2022
-            target: x86_64-pc-windows-msvc
-
-          # Windows 11 ARM64
-          - artifact: qrcode-gen-win11-arm64.exe
-            runner: windows-2022
-            target: aarch64-pc-windows-msvc
-
-          # macOS ARM64
-          - artifact: qrcode-gen-macos-arm64
-            runner: macos-15
-            target: aarch64-apple-darwin
-
-    name: ${{ matrix.artifact }}
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: dtolnay/rust-toolchain@nightly
-        with:
-          targets: ${{ matrix.target }}
-          components: rust-src
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          shared-key: ${{ matrix.artifact }}
-
-      - name: Install zig
-        if: matrix.zig_target != ''
-        uses: mlugg/setup-zig@v2
-
-      # rust-lld linker
-      - name: Configure rust-lld linker
-        if: matrix.target != 'aarch64-linux-android'
-        shell: bash
-        run: |
-          mkdir -p .cargo
-
-          cat >> .cargo/config.toml <<EOF
-          [target.${{ matrix.target }}]
-          linker = "rust-lld"
-          EOF
-
-      # Everything else
-      - name: Build
-        if: |
-          matrix.zig_target == '' &&
-          matrix.target != 'aarch64-linux-android'
-        shell: bash
-        run: |
-          if echo ${{ matrix.artifact }} | grep -- "-win10-" &> /dev/null; then
-            cargo build \
-              --no-default-features \
-              -F win32 \
-              --release \
-              --target ${{ matrix.target }}
-          else
-            cargo build \
-              --release \
-              --target ${{ matrix.target }}
-          fi
-
-      - name: Collect
-        shell: bash
-        run: |
-          mkdir dist
-
-          BIN=qrcode-gen
-          case "${{ matrix.target }}" in
-            *windows*)
-              BIN="${BIN}.exe"
-              ;;
-          esac
-
-          cp \
-            "target/${{ matrix.target }}/release/${BIN}" \
-            "dist/${{ matrix.artifact }}"
-
-      - uses: actions/upload-artifact@v7
-        with:
-          name: ${{ matrix.artifact }}
-          path: dist/*
+  macos:
+    uses: ./.github/workflows/macos.yaml
 
   release:
     needs:
-      - build
+      - windows-10
+      - windows-11
+      - macos
 
     runs-on: ubuntu-24.04
 

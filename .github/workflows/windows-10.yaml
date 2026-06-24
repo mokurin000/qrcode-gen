@@ -1,0 +1,79 @@
+name: build-windows-10
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        include:
+          - artifact: qrcode-gen-win10-x86_64.exe
+            runner: windows-2022
+            target: x86_64-pc-windows-msvc
+
+          - artifact: qrcode-gen-win10-arm64.exe
+            runner: windows-2022
+            target: aarch64-pc-windows-msvc
+
+    name: ${{ matrix.artifact }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: ${{ matrix.target }}
+          components: rust-src
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ${{ matrix.artifact }}
+
+      - name: Install zig
+        if: matrix.zig_target != ''
+        uses: mlugg/setup-zig@v2
+
+      # rust-lld linker
+      - name: Configure rust-lld linker
+        if: matrix.target != 'aarch64-linux-android'
+        shell: bash
+        run: |
+          mkdir -p .cargo
+
+          cat >> .cargo/config.toml <<EOF
+          [target.${{ matrix.target }}]
+          linker = "rust-lld"
+          EOF
+
+      - name: Build
+        if: |
+          matrix.zig_target == '' &&
+          matrix.target != 'aarch64-linux-android'
+        shell: bash
+        run: |
+          cargo build \
+            --no-default-features \
+            -F win32 \
+            --release \
+            --target ${{ matrix.target }}
+
+      - name: Collect
+        shell: bash
+        run: |
+          mkdir dist
+
+          BIN=qrcode-gen.exe
+
+          cp \
+            "target/${{ matrix.target }}/release/${BIN}" \
+            "dist/${{ matrix.artifact }}"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/*
