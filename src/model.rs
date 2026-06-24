@@ -64,7 +64,7 @@ impl Component for MainModel {
             },
         }
 
-        #[cfg(windows)]
+        #[cfg(all(windows, feature = "winui"))]
         window.set_backdrop(Backdrop::Mica)?;
 
         window.show()?;

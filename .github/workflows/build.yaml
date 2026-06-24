@@ -27,13 +27,23 @@ jobs:
 
       matrix:
         include:
-          # Windows x64
-          - artifact: qrcode-gen-windows-x86_64.exe
+          # Windows 10 x64
+          - artifact: qrcode-gen-win10-x86_64.exe
             runner: windows-2022
             target: x86_64-pc-windows-msvc
 
-          # Windows ARM64
-          - artifact: qrcode-gen-windows-arm64.exe
+          # Windows 10 ARM64
+          - artifact: qrcode-gen-win10-arm64.exe
+            runner: windows-2022
+            target: aarch64-pc-windows-msvc
+
+          # Windows 11 x64
+          - artifact: qrcode-gen-win11-x86_64.exe
+            runner: windows-2022
+            target: x86_64-pc-windows-msvc
+
+          # Windows 11 ARM64
+          - artifact: qrcode-gen-win11-arm64.exe
             runner: windows-2022
             target: aarch64-pc-windows-msvc
 
@@ -79,9 +89,17 @@ jobs:
           matrix.target != 'aarch64-linux-android'
         shell: bash
         run: |
-          cargo build \
-            --release \
-            --target ${{ matrix.target }}
+          if echo ${{ matrix.artifact }} | grep -- "-win10-" &> /dev/null; then
+            cargo build \
+              --no-default-features \
+              -F win32 \
+              --release \
+              --target ${{ matrix.target }}
+          else
+            cargo build \
+              --release \
+              --target ${{ matrix.target }}
+          fi
 
       - name: Collect
         shell: bash

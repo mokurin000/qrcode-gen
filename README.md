@@ -4,7 +4,7 @@ Responsive, lightweight, fast, flexible but not complicated.
 
 ## Windows, macOS
 
-Windows 11 (>= 22000) and macOS are supported.
+Windows 10/11 and macOS are supported.
 
 ## Linux
 
