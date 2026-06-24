@@ -1,4 +1,5 @@
-use qrcode::{EcLevel, Version};
+use qrcode::types::QrError;
+use qrcode::{EcLevel, QrCode, Version};
 use spdlog::error;
 use winio::prelude::*;
 
@@ -14,6 +15,7 @@ pub struct MainModel {
     canvas: Child<Canvas>,
     foottip: Child<Label>,
 
+    qrcode: Option<std::result::Result<QrCode, QrError>>,
     drawing_img: Option<((u32, u32), DrawingImage)>,
 }
 
@@ -81,6 +83,7 @@ impl Component for MainModel {
             canvas,
             foottip,
             drawing_img: None,
+            qrcode: None,
         })
     }
 
@@ -126,7 +129,9 @@ impl Component for MainModel {
             MainMessage::Noop => Ok(false),
             MainMessage::Resize => Ok(true),
             MainMessage::ContentChanged => {
+                self.qrcode.take();
                 self.drawing_img.take();
+
                 Ok(true)
             }
             MainMessage::Close => {
@@ -169,9 +174,10 @@ impl Component for MainModel {
 
         let ec_level = self.ec_level()?;
         let version = self.version()?;
-        let qr = self.make_qr();
+        let data = self.textbox.text()?;
+        let qrcode = self.make_qr(ec_level, version, data);
 
-        match qr {
+        match &qrcode {
             Err(e) => {
                 error!("Cannot generate QR: {e}");
 
@@ -213,6 +219,8 @@ impl Component for MainModel {
                 }
             }
         }
+
+        self.qrcode = Some(qrcode);
 
         Ok(())
     }
