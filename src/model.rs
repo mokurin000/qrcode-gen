@@ -13,6 +13,7 @@ pub struct MainModel {
     window: Child<Window>,
     textbox: Child<TextBox>,
     eclevel: Child<ComboBox>,
+    version: Child<ComboBox>,
     canvas: Child<Canvas>,
     foottip: Child<Label>,
 }
@@ -41,6 +42,19 @@ impl Component for MainModel {
                 items: ["L 7%", "M 15%", "Q 25%", "H 30%"],
                 tooltip: "Error correction level."
             },
+            version: ComboBox = (&window) => {
+                items: ["Auto".to_string()].into_iter()
+                    .chain((1..=40).map(|n| n.to_string()))
+                    .chain(
+                        [
+                            "M1".into(),
+                            "M2".into(),
+                            "M3".into(),
+                            "M4".into(),
+                        ]
+                    ),
+                tooltip: "QRCode spec version."
+            },
             textbox: TextBox = (&window) => {
                 tooltip: "Text to generate QRCode for",
             },
@@ -59,6 +73,7 @@ impl Component for MainModel {
             window,
             textbox,
             eclevel,
+            version,
             canvas,
             foottip,
         })
@@ -77,6 +92,9 @@ impl Component for MainModel {
             },
             self.eclevel => {
                 ComboBoxEvent::Select => MainMessage::ReDraw,
+            },
+            self.version => {
+                ComboBoxEvent::Select => MainMessage::ReDraw,
             }
         }
     }
@@ -89,6 +107,7 @@ impl Component for MainModel {
             self.canvas,
             self.foottip,
             self.eclevel,
+            self.version,
         )
     }
 
@@ -121,6 +140,11 @@ impl Component for MainModel {
                     grow: true,
                     margin: Margin::new_all_same(2.0),
                 },
+                self.version => {
+                    halign: HAlign::Center,
+                    grow: true,
+                    margin: Margin::new_all_same(2.0),
+                },
             };
             let mut panel = layout! {
                 StackPanel::new(Orient::Vertical),
@@ -142,10 +166,34 @@ impl Component for MainModel {
             _ => unreachable!(),
         };
 
-        let qr = qrcode::QrCode::with_error_correction_level(self.textbox.text()?, ec_level);
+        let version = self.version.selection()?.and_then(|ver| match ver {
+            _ if ver == 0 => None,
+            _ if ver <= 40 => Some(Version::Normal(ver as _)),
+            _ => Some(Version::Micro(ver as i16 - 40)),
+        });
+        let qr = if let Some(version) = version {
+            qrcode::QrCode::with_version(self.textbox.text()?, version, ec_level)
+        } else {
+            qrcode::QrCode::with_error_correction_level(self.textbox.text()?, ec_level)
+        };
+
         match qr {
             Err(e) => {
                 error!("Cannot generate QR: {e}");
+
+                if let Some(Version::Micro(v)) = version {
+                    match (v, ec_level) {
+                        (1, EcLevel::L) => (),
+                        (2 | 3, EcLevel::L | EcLevel::M) => (),
+                        (4, EcLevel::L | EcLevel::M | EcLevel::Q) => (),
+                        _ => {
+                            self.foottip.set_text(format!(
+                                "Error: EC level {ec_level:?} not supported in M{v}"
+                            ))?;
+                            return Ok(());
+                        }
+                    };
+                }
 
                 self.foottip.set_text(format!("Error: {e}"))?;
             }
@@ -179,7 +227,11 @@ impl Component for MainModel {
                         self.foottip
                             .set_text(format!("Version: {v}, EcLevel: {ec_level:?}"))?;
                     }
-                    Version::Micro(v) if v <= 2 => {
+                    // https://www.qrcode.com/en/codes/microqr.html
+                    // M1 does not support any error corrction
+                    // M2~M3 supports only L, M
+                    // M4 supports only L, M, Q
+                    Version::Micro(v) if v <= 1 => {
                         self.foottip.set_text(format!("Version: M{v}"))?;
                     }
                     Version::Micro(v) => {
