@@ -11,7 +11,7 @@ impl Default for Timer {
 }
 
 impl Timer {
-    pub(crate) fn with_tip(tip: &'static str) -> Self {
+    pub fn with_tip(tip: &'static str) -> Self {
         Self(Instant::now(), tip)
     }
 }

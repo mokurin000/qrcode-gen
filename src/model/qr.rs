@@ -7,6 +7,7 @@ use winio::prelude::*;
 
 use crate::Result;
 use crate::model::MainModel;
+#[cfg(feature = "timing")]
 use crate::timer::Timer;
 
 impl MainModel {
@@ -49,6 +50,7 @@ impl MainModel {
         let mut ctx = self.canvas.context()?;
 
         let image = {
+            #[cfg(feature = "timing")]
             let _timer = Timer::with_tip("Built DrawingImage");
             let qr_image = render.build();
             let img = DynamicImage::ImageRgba8(qr_image);
@@ -103,6 +105,7 @@ impl MainModel {
             return qr;
         }
 
+        #[cfg(feature = "timing")]
         let _timer = Timer::with_tip("Encoded QR code");
 
         let qr = if let Some(version) = version {

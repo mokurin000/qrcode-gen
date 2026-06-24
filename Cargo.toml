@@ -33,6 +33,7 @@ name = "main"
 
 [features]
 default = ["winui"]
+timing = []
 
 gtk = ["winio/gtk"]
 qt = ["winio/qt"]
