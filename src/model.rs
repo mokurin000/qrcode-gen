@@ -220,7 +220,7 @@ impl Component for MainModel {
                 let left_top = (actual_size - qr_size) / 2.0;
                 let rect = Rect::new(Point::origin() + left_top, qr_size);
 
-                #[cfg(target_os = "android")]
+                #[cfg(all(debug_assertions, target_os = "android"))]
                 {
                     let brush = SolidColorBrush::new(if is_dark {
                         Color::new(255, 255, 255, 255)
