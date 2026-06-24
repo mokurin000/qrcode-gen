@@ -56,11 +56,11 @@ impl Component for MainModel {
                 tooltip: "QRCode spec version."
             },
             textbox: TextBox = (&window) => {
-                tooltip: "Text to generate QRCode for",
+                tooltip: "Text to generate QRCode for.",
             },
             foottip: Label = (&window) => {
                 halign: HAlign::Center,
-                tooltip: "Status of the QRCode generation",
+                tooltip: "Status of the QRCode generation.",
             },
         }
 
@@ -84,7 +84,7 @@ impl Component for MainModel {
         start! {
             sender, default: MainMessage::Noop,
             self.window => {
-                WindowEvent::Resize => MainMessage::ReDraw,
+                WindowEvent::Resize | WindowEvent::ThemeChanged => MainMessage::ReDraw,
                 WindowEvent::Close => MainMessage::Close,
             },
             self.textbox => {
