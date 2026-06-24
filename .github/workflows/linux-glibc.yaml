@@ -13,7 +13,7 @@ jobs:
       matrix:
         include:
           - artifact: qrcode-gen-linux-x86_64
-            target: x86_64-unknown-linux-gnu.2.31
+            target: x86_64-unknown-linux-gnu
 
     name: ${{ matrix.artifact }}
 
@@ -43,10 +43,11 @@ jobs:
 
       - name: Build
         shell: bash
+        env:
+          CARGO_ZIGBUILD_TARGET: x86_64-unknown-linux-gnu.2.31
         run: |
           cargo zigbuild \
             --release \
-            --target ${{ matrix.target }} \
             --no-default-features \
             -F qt
 
