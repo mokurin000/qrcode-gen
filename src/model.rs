@@ -2,17 +2,17 @@ use std::mem;
 
 use image::{DynamicImage, Rgba};
 use qrcode::render::Pixel;
+use qrcode::{EcLevel, Version};
 use spdlog::error;
 use winio::prelude::*;
 
 use crate::Result;
 use crate::startup::Startup;
 
-const GENERATED: &str = "Generated QR Code";
-
 pub struct MainModel {
     window: Child<Window>,
     textbox: Child<TextBox>,
+    eclevel: Child<ComboBox>,
     canvas: Child<Canvas>,
     foottip: Child<Label>,
 }
@@ -37,7 +37,11 @@ impl Component for MainModel {
                 size: Size::new(800.0, 600.0),
             },
             canvas: Canvas = (&window),
-            edit: TextBox = (&window) => {
+            eclevel: ComboBox = (&window) => {
+                items: ["L 7%", "M 15%", "Q 25%", "H 30%"],
+                tooltip: "Error correction level."
+            },
+            textbox: TextBox = (&window) => {
                 tooltip: "Text to generate QRCode for",
             },
             foottip: Label = (&window) => {
@@ -53,7 +57,8 @@ impl Component for MainModel {
 
         Ok(Self {
             window,
-            textbox: edit,
+            textbox,
+            eclevel,
             canvas,
             foottip,
         })
@@ -69,13 +74,22 @@ impl Component for MainModel {
             },
             self.textbox => {
                 TextBoxEvent::Change => MainMessage::ReDraw,
+            },
+            self.eclevel => {
+                ComboBoxEvent::Select => MainMessage::ReDraw,
             }
         }
     }
 
     async fn update_children(&mut self) -> Result<bool> {
         // update the window
-        update_children!(self.window, self.textbox, self.canvas, self.foottip,)
+        update_children!(
+            self.window,
+            self.textbox,
+            self.canvas,
+            self.foottip,
+            self.eclevel,
+        )
     }
 
     async fn update(
@@ -100,8 +114,17 @@ impl Component for MainModel {
         let csize = self.window.client_size()?;
 
         {
+            let mut control = layout! {
+                StackPanel::new(Orient::Horizontal),
+                self.eclevel => {
+                    halign: HAlign::Center,
+                    grow: true,
+                    margin: Margin::new_all_same(2.0),
+                },
+            };
             let mut panel = layout! {
                 StackPanel::new(Orient::Vertical),
+                control,
                 self.textbox,
                 self.canvas => { grow: true },
                 self.foottip,
@@ -111,9 +134,19 @@ impl Component for MainModel {
 
         let is_dark = ColorTheme::current()? == ColorTheme::Dark;
 
-        match qrcode::QrCode::new(self.textbox.text()?) {
+        let ec_level = match self.eclevel.selection()? {
+            None | Some(0) => EcLevel::L,
+            Some(1) => EcLevel::M,
+            Some(2) => EcLevel::Q,
+            Some(3) => EcLevel::H,
+            _ => unreachable!(),
+        };
+
+        let qr = qrcode::QrCode::with_error_correction_level(self.textbox.text()?, ec_level);
+        match qr {
             Err(e) => {
                 error!("Cannot generate QR: {e}");
+
                 self.foottip.set_text(format!("Error: {e}"))?;
             }
             Ok(qr) => {
@@ -140,7 +173,20 @@ impl Component for MainModel {
                 let rect = Rect::new(Point::new(left_top.width, left_top.height), qr_size);
 
                 ctx.draw_image(&image, rect, Some(Rect::new(Point::origin(), qr_size)))?;
-                self.foottip.set_text(GENERATED)?;
+
+                match qr.version() {
+                    Version::Normal(v) => {
+                        self.foottip
+                            .set_text(format!("Version: {v}, EcLevel: {ec_level:?}"))?;
+                    }
+                    Version::Micro(v) if v <= 2 => {
+                        self.foottip.set_text(format!("Version: M{v}"))?;
+                    }
+                    Version::Micro(v) => {
+                        self.foottip
+                            .set_text(format!("Version: M{v}, EcLevel: {ec_level:?}"))?;
+                    }
+                }
             }
         }
 
