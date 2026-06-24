@@ -9,9 +9,9 @@ fn main() -> Result<()> {
 
     use main::APP_ID;
     use main::model::MainModel;
-    use main::startup::Startup;
+    use main::timer::Timer;
 
-    let init = Startup::default();
+    let init = Timer::default();
 
     // Try attach to console on Windows.
     //

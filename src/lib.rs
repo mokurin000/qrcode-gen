@@ -1,5 +1,5 @@
 pub mod model;
-pub mod startup;
+pub mod timer;
 #[cfg(windows)]
 pub mod windows;
 

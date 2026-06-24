@@ -1,10 +1,9 @@
+use qrcode::QrCode;
 use qrcode::types::QrError;
-use qrcode::{EcLevel, QrCode, Version};
-use spdlog::error;
 use winio::prelude::*;
 
 use crate::Result;
-use crate::startup::Startup;
+use crate::timer::Timer;
 
 pub struct MainModel {
     window: Child<Window>,
@@ -33,7 +32,7 @@ pub enum MainMessage {
 impl Component for MainModel {
     type Error = color_eyre::Report;
     type Event = ();
-    type Init<'a> = Startup;
+    type Init<'a> = Timer;
     type Message = MainMessage;
 
     async fn init(_init: Self::Init<'_>, _sender: &ComponentSender<Self>) -> Result<Self> {
@@ -131,7 +130,6 @@ impl Component for MainModel {
             MainMessage::ContentChanged => {
                 self.qrcode.take();
                 self.drawing_img.take();
-
                 Ok(true)
             }
             MainMessage::Close => {
@@ -146,81 +144,29 @@ impl Component for MainModel {
     fn render(&mut self, _sender: &ComponentSender<Self>) -> Result<()> {
         let csize = self.window.client_size()?;
 
-        {
-            let mut control = layout! {
-                StackPanel::new(Orient::Horizontal),
-                self.eclevel => {
-                    halign: HAlign::Center,
-                    grow: true,
-                    margin: Margin::new_all_same(2.0),
-                },
-                self.version => {
-                    halign: HAlign::Center,
-                    grow: true,
-                    margin: Margin::new_all_same(2.0),
-                },
-            };
-            let mut panel = layout! {
-                StackPanel::new(Orient::Vertical),
-                control,
-                self.textbox,
-                self.canvas => { grow: true },
-                self.foottip,
-            };
-            panel.set_size(csize)?;
-        }
+        let mut control = layout! {
+            StackPanel::new(Orient::Horizontal),
+            self.eclevel => {
+                halign: HAlign::Center,
+                grow: true,
+                margin: Margin::new_all_same(2.0),
+            },
+            self.version => {
+                halign: HAlign::Center,
+                grow: true,
+                margin: Margin::new_all_same(2.0),
+            },
+        };
+        let mut panel = layout! {
+            StackPanel::new(Orient::Vertical),
+            control,
+            self.textbox,
+            self.canvas => { grow: true },
+            self.foottip,
+        };
+        panel.set_size(csize)?;
 
-        let is_dark = ColorTheme::current()? == ColorTheme::Dark;
-
-        let ec_level = self.ec_level()?;
-        let version = self.version()?;
-        let data = self.textbox.text()?;
-        let qrcode = self.make_qr(ec_level, version, data);
-
-        match &qrcode {
-            Err(e) => {
-                error!("Cannot generate QR: {e}");
-
-                if let Some(Version::Micro(v)) = version {
-                    match (v, ec_level) {
-                        (1, EcLevel::L) => (),
-                        (2 | 3, EcLevel::L | EcLevel::M) => (),
-                        (4, EcLevel::L | EcLevel::M | EcLevel::Q) => (),
-                        _ => {
-                            self.foottip.set_text(format!(
-                                "Error: EC level {ec_level:?} not supported in M{v}"
-                            ))?;
-                            return Ok(());
-                        }
-                    };
-                }
-
-                self.foottip.set_text(format!("Error: {e}"))?;
-            }
-            Ok(qr) => {
-                self.draw_qr(&qr, is_dark)?;
-
-                match qr.version() {
-                    Version::Normal(v) => {
-                        self.foottip
-                            .set_text(format!("Version: {v}, EcLevel: {ec_level:?}"))?;
-                    }
-                    // https://www.qrcode.com/en/codes/microqr.html
-                    // M1 does not support any error corrction
-                    // M2~M3 supports only L, M
-                    // M4 supports only L, M, Q
-                    Version::Micro(v) if v <= 1 => {
-                        self.foottip.set_text(format!("Version: M{v}"))?;
-                    }
-                    Version::Micro(v) => {
-                        self.foottip
-                            .set_text(format!("Version: M{v}, EcLevel: {ec_level:?}"))?;
-                    }
-                }
-            }
-        }
-
-        self.qrcode = Some(qrcode);
+        self.update_qr()?;
 
         Ok(())
     }
