@@ -1,0 +1,119 @@
+name: nightly-release
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        include:
+          # Windows x64
+          - artifact: qrcode-gen-windows-x86_64.exe
+            runner: windows-2022
+            target: x86_64-pc-windows-msvc
+
+          # Windows ARM64
+          - artifact: qrcode-gen-windows-arm64.exe
+            runner: windows-2022
+            target: aarch64-pc-windows-msvc
+
+          # macOS ARM64
+          - artifact: qrcode-gen-macos-arm64
+            runner: macos-15
+            target: aarch64-apple-darwin
+
+    name: ${{ matrix.artifact }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: ${{ matrix.target }}
+          components: rust-src
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ${{ matrix.target }}
+
+      - name: Install zig
+        if: matrix.zig_target != ''
+        uses: mlugg/setup-zig@v2
+
+      # rust-lld linker
+      - name: Configure rust-lld linker
+        if: matrix.target != 'aarch64-linux-android'
+        shell: bash
+        run: |
+          mkdir -p .cargo
+
+          cat >> .cargo/config.toml <<EOF
+          [target.${{ matrix.target }}]
+          linker = "rust-lld"
+          EOF
+
+      # Everything else
+      - name: Build
+        if: |
+          matrix.zig_target == '' &&
+          matrix.target != 'aarch64-linux-android'
+        shell: bash
+        run: |
+          cargo build \
+            --release \
+            --target ${{ matrix.target }}
+
+      - name: Collect
+        shell: bash
+        run: |
+          mkdir dist
+
+          BIN=qrcode-gen
+          case "${{ matrix.target }}" in
+            *windows*)
+              BIN="${BIN}.exe"
+              ;;
+          esac
+
+          cp \
+            "target/${{ matrix.target }}/release/${BIN}" \
+            "dist/${{ matrix.artifact }}"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/*
+
+  release:
+    needs:
+      - build
+
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+
+      - id: date
+        run: |
+          echo "date=$(date -u +%Y%m%d-%H%M%S)" >> $GITHUB_OUTPUT
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          tag_name: nightly
+          name: Nightly ${{ steps.date.outputs.date }}
+          prerelease: true
+          files: artifacts/**/*
+          overwrite_files: true
