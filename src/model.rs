@@ -15,7 +15,6 @@ pub struct MainModel {
     foottip: Child<Label>,
 
     qrcode: Option<std::result::Result<QrCode, QrError>>,
-    drawing_img: Option<((u32, u32), DrawingImage)>,
 }
 
 pub enum MainMessage {
@@ -81,7 +80,6 @@ impl Component for MainModel {
             version,
             canvas,
             foottip,
-            drawing_img: None,
             qrcode: None,
         })
     }
@@ -129,7 +127,6 @@ impl Component for MainModel {
             MainMessage::Resize => Ok(true),
             MainMessage::ContentChanged => {
                 self.qrcode.take();
-                self.drawing_img.take();
                 Ok(true)
             }
             MainMessage::Close => {

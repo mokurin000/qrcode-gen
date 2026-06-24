@@ -21,8 +21,7 @@ winio = { version = "0.12.0-rc.5", features = [
 image = { version = "0.25.10", default-features = false }
 
 [dependencies.qrcode]
-git = "https://github.com/mokurin000/qrcode-rust"
-branch = "feat/real-pixel-size"
+version = "0.14"
 default-features = false
 features = ["image"]
 

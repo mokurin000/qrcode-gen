@@ -46,15 +46,9 @@ impl MainModel {
             .light_color(light)
             .max_dimensions(max_dim, max_dim);
 
-        let qr_realsize = render.real_size();
-
         let mut ctx = self.canvas.context()?;
 
-        let image = if let Some((realsize, i)) = self.drawing_img.take()
-            && realsize == qr_realsize
-        {
-            i
-        } else {
+        let image = {
             let _timer = Timer::with_tip("Built DrawingImage");
             let qr_image = render.build();
             let img = DynamicImage::ImageRgba8(qr_image);
@@ -78,7 +72,6 @@ impl MainModel {
 
         ctx.draw_image(&image, rect, Some(Rect::new(Point::origin(), qr_size)))?;
 
-        self.drawing_img = Some((qr_realsize, image));
         Ok(())
     }
 
