@@ -12,7 +12,7 @@ const GENERATED: &str = "Generated QR Code";
 
 pub struct MainModel {
     window: Child<Window>,
-    edit: Child<Edit>,
+    textbox: Child<TextBox>,
     canvas: Child<Canvas>,
     foottip: Child<Label>,
 }
@@ -37,9 +37,12 @@ impl Component for MainModel {
                 size: Size::new(800.0, 600.0),
             },
             canvas: Canvas = (&window),
-            edit: Edit = (&window),
+            edit: TextBox = (&window) => {
+                tooltip: "Text to generate QRCode for",
+            },
             foottip: Label = (&window) => {
                 halign: HAlign::Center,
+                tooltip: "Status of the QRCode generation",
             },
         }
 
@@ -50,7 +53,7 @@ impl Component for MainModel {
 
         Ok(Self {
             window,
-            edit,
+            textbox: edit,
             canvas,
             foottip,
         })
@@ -64,15 +67,15 @@ impl Component for MainModel {
                 WindowEvent::Resize => MainMessage::ReDraw,
                 WindowEvent::Close => MainMessage::Close,
             },
-            self.edit => {
-                EditEvent::Change => MainMessage::ReDraw,
+            self.textbox => {
+                TextBoxEvent::Change => MainMessage::ReDraw,
             }
         }
     }
 
     async fn update_children(&mut self) -> Result<bool> {
         // update the window
-        update_children!(self.window, self.edit, self.canvas, self.foottip,)
+        update_children!(self.window, self.textbox, self.canvas, self.foottip,)
     }
 
     async fn update(
@@ -99,7 +102,7 @@ impl Component for MainModel {
         {
             let mut panel = layout! {
                 StackPanel::new(Orient::Vertical),
-                self.edit,
+                self.textbox,
                 self.canvas => { grow: true },
                 self.foottip,
             };
@@ -108,7 +111,7 @@ impl Component for MainModel {
 
         let is_dark = ColorTheme::current()? == ColorTheme::Dark;
 
-        match qrcode::QrCode::new(self.edit.text()?) {
+        match qrcode::QrCode::new(self.textbox.text()?) {
             Err(e) => {
                 error!("Cannot generate QR: {e}");
                 self.foottip.set_text(format!("Error: {e}"))?;
