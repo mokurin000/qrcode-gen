@@ -49,3 +49,6 @@ debug = "limited"
 strip = "symbols"
 # .dSYM symlink on macOS, .dwp on Linux, .pdb on Windows
 split-debuginfo = "packed"
+
+[profile.dev]
+debug = "limited"
