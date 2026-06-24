@@ -3,11 +3,11 @@ use spdlog::error;
 use winio::prelude::*;
 
 use crate::model::MainModel;
-use crate::startup::Startup;
+use crate::timer::Timer;
 
 #[unsafe(no_mangle)]
 fn android_main(app: AndroidApp) {
-    let init = Startup::default();
+    let init = Timer::default();
 
     unsafe {
         std::env::set_var("RUST_BACKTRACE", "1");
