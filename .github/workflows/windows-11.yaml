@@ -34,10 +34,6 @@ jobs:
         with:
           shared-key: ${{ matrix.artifact }}
 
-      - name: Install zig
-        if: matrix.zig_target != ''
-        uses: mlugg/setup-zig@v2
-
       # rust-lld linker
       - name: Configure rust-lld linker
         if: matrix.target != 'aarch64-linux-android'
@@ -51,9 +47,6 @@ jobs:
           EOF
 
       - name: Build
-        if: |
-          matrix.zig_target == '' &&
-          matrix.target != 'aarch64-linux-android'
         shell: bash
         run: |
           cargo build \
