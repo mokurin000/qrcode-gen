@@ -1,4 +1,4 @@
-package rs.compio.winio.widgets;
+package io.github.mokurin000.qrcode_gen;
 
 import rs.compio.winio.Activity;
 
