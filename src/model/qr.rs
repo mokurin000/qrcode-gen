@@ -1,7 +1,9 @@
 use image::{DynamicImage, Rgba};
 use qrcode::render::Pixel as _;
+use qrcode::{EcLevel, QrCode, Version};
 use winio::prelude::*;
 
+use crate::Result;
 use crate::model::MainModel;
 
 impl MainModel {
@@ -54,5 +56,36 @@ impl MainModel {
         ctx.draw_image(&image, rect, Some(Rect::new(Point::origin(), qr_size)))?;
         self.drawing_img = Some((qr_realsize, image));
         Ok(())
+    }
+
+    pub(crate) fn version(&self) -> Result<Option<Version>> {
+        Ok(self.version.selection()?.and_then(|ver| match ver {
+            _ if ver == 0 => None,
+            _ if ver <= 40 => Some(Version::Normal(ver as _)),
+            _ => Some(Version::Micro(ver as i16 - 40)),
+        }))
+    }
+
+    pub(crate) fn ec_level(&self) -> Result<EcLevel> {
+        Ok(match self.eclevel.selection()? {
+            None | Some(0) => EcLevel::L,
+            Some(1) => EcLevel::M,
+            Some(2) => EcLevel::Q,
+            Some(3) => EcLevel::H,
+            _ => unreachable!(),
+        })
+    }
+
+    pub(crate) fn make_qr(&mut self) -> Result<QrCode> {
+        let ec_level = self.ec_level()?;
+        let version = self.version()?;
+
+        let qr = if let Some(version) = version {
+            qrcode::QrCode::with_version(self.textbox.text()?, version, ec_level)
+        } else {
+            qrcode::QrCode::with_error_correction_level(self.textbox.text()?, ec_level)
+        };
+
+        Ok(qr?)
     }
 }

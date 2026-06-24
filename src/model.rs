@@ -167,25 +167,9 @@ impl Component for MainModel {
 
         let is_dark = ColorTheme::current()? == ColorTheme::Dark;
 
-        let ec_level = match self.eclevel.selection()? {
-            None | Some(0) => EcLevel::L,
-            Some(1) => EcLevel::M,
-            Some(2) => EcLevel::Q,
-            Some(3) => EcLevel::H,
-            _ => unreachable!(),
-        };
-
-        let version = self.version.selection()?.and_then(|ver| match ver {
-            _ if ver == 0 => None,
-            _ if ver <= 40 => Some(Version::Normal(ver as _)),
-            _ => Some(Version::Micro(ver as i16 - 40)),
-        });
-
-        let qr = if let Some(version) = version {
-            qrcode::QrCode::with_version(self.textbox.text()?, version, ec_level)
-        } else {
-            qrcode::QrCode::with_error_correction_level(self.textbox.text()?, ec_level)
-        };
+        let ec_level = self.ec_level()?;
+        let version = self.version()?;
+        let qr = self.make_qr();
 
         match qr {
             Err(e) => {
