@@ -64,8 +64,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          shared-key: ${{ matrix.target }}
-          key: ${{ matrix.artifact }}
+          shared-key: ${{ matrix.artifact }}
 
       - name: Install zig
         if: matrix.zig_target != ''
