@@ -89,8 +89,9 @@ impl Component for MainModel {
         start! {
             sender, default: MainMessage::Noop,
             self.window => {
-                WindowEvent::Resize  => MainMessage::Resize,
+                WindowEvent::Resize => MainMessage::Resize,
                 WindowEvent::Close => MainMessage::Close,
+                WindowEvent::ThemeChanged => MainMessage::ContentChanged,
             },
             self.textbox => {
                 TextBoxEvent::Change => MainMessage::ContentChanged,
