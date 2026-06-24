@@ -12,7 +12,10 @@ spdlog-rs = { version = "0.5.3", default-features = false, features = [
     "release-level-info",
     "source-location",
 ] }
-winio = { version = "0.12.0-rc.5", features = ["win32-dark-mode"] }
+winio = { version = "0.12.0-rc.5", features = [
+    "winui",
+    "win32-dark-mode",
+], default-features = false }
 
 [profile.release]
 # reduce binary size & optimize performance
