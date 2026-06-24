@@ -16,11 +16,18 @@ pub struct MainModel {
     version: Child<ComboBox>,
     canvas: Child<Canvas>,
     foottip: Child<Label>,
+
+    drawing_img: Option<((u32, u32), DrawingImage)>,
 }
 
 pub enum MainMessage {
+    /// Nothing to do
     Noop,
-    ReDraw,
+    /// Main window has been resized
+    Resize,
+    /// QRCode must be updated
+    ContentChanged,
+    /// Close main window
     Close,
 }
 
@@ -76,6 +83,7 @@ impl Component for MainModel {
             version,
             canvas,
             foottip,
+            drawing_img: None,
         })
     }
 
@@ -84,17 +92,17 @@ impl Component for MainModel {
         start! {
             sender, default: MainMessage::Noop,
             self.window => {
-                WindowEvent::Resize | WindowEvent::ThemeChanged => MainMessage::ReDraw,
+                WindowEvent::Resize  => MainMessage::Resize,
                 WindowEvent::Close => MainMessage::Close,
             },
             self.textbox => {
-                TextBoxEvent::Change => MainMessage::ReDraw,
+                TextBoxEvent::Change => MainMessage::ContentChanged,
             },
             self.eclevel => {
-                ComboBoxEvent::Select => MainMessage::ReDraw,
+                ComboBoxEvent::Select => MainMessage::ContentChanged,
             },
             self.version => {
-                ComboBoxEvent::Select => MainMessage::ReDraw,
+                ComboBoxEvent::Select => MainMessage::ContentChanged,
             }
         }
     }
@@ -119,7 +127,11 @@ impl Component for MainModel {
         // deal with custom messages
         match message {
             MainMessage::Noop => Ok(false),
-            MainMessage::ReDraw => Ok(true),
+            MainMessage::Resize => Ok(true),
+            MainMessage::ContentChanged => {
+                self.drawing_img.take();
+                Ok(true)
+            }
             MainMessage::Close => {
                 // the root component output stops the application
                 sender.output(());
@@ -206,17 +218,28 @@ impl Component for MainModel {
 
                 let actual_size = self.canvas.size()?;
                 let max_dim = actual_size.height.min(actual_size.width) as u32;
-                let qr_image = qr
-                    .render::<image::Rgba<u8>>()
+
+                let mut render = qr.render::<image::Rgba<u8>>();
+                let render = render
                     .dark_color(dark)
                     .light_color(light)
-                    .max_dimensions(max_dim, max_dim)
-                    .build();
-                let mut ctx = self.canvas.context()?;
-                let qr_size = Size::new(qr_image.width() as _, qr_image.height() as _);
-                let img = DynamicImage::ImageRgba8(qr_image);
-                let image = ctx.create_image(img)?;
+                    .max_dimensions(max_dim, max_dim);
 
+                let qr_realsize = render.real_size();
+
+                let mut ctx = self.canvas.context()?;
+
+                let image = if let Some((realsize, i)) = self.drawing_img.take()
+                    && realsize == qr_realsize
+                {
+                    i
+                } else {
+                    let qr_image = render.build();
+                    let img = DynamicImage::ImageRgba8(qr_image);
+                    ctx.create_image(img)?
+                };
+
+                let qr_size = image.size()?;
                 let left_top = (actual_size - qr_size) / 2.0;
                 let rect = Rect::new(Point::origin() + left_top, qr_size);
 
@@ -232,6 +255,7 @@ impl Component for MainModel {
                 }
 
                 ctx.draw_image(&image, rect, Some(Rect::new(Point::origin(), qr_size)))?;
+                self.drawing_img = Some((qr_realsize, image));
 
                 match qr.version() {
                     Version::Normal(v) => {
