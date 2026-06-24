@@ -1,7 +1,6 @@
 use std::mem;
 
 use image::{DynamicImage, Rgba};
-use qrcode::EcLevel;
 use qrcode::render::Pixel;
 use spdlog::error;
 use winio::prelude::*;
@@ -9,10 +8,13 @@ use winio::prelude::*;
 use crate::Result;
 use crate::startup::Startup;
 
+const GENERATED: &str = "Generated QR Code";
+
 pub struct MainModel {
     window: Child<Window>,
+    edit: Child<Edit>,
     canvas: Child<Canvas>,
-    label: Child<Label>,
+    foottip: Child<Label>,
 }
 
 pub enum MainMessage {
@@ -31,12 +33,12 @@ impl Component for MainModel {
         // create & initialize the window
         init! {
             window: Window = (()) => {
-                text: "Example",
+                text: "QRCode Generator",
                 size: Size::new(800.0, 600.0),
             },
             canvas: Canvas = (&window),
-            label: Label = (&window) => {
-                text: "Generate QR Code",
+            edit: Edit = (&window),
+            foottip: Label = (&window) => {
                 halign: HAlign::Center,
             },
         }
@@ -48,8 +50,9 @@ impl Component for MainModel {
 
         Ok(Self {
             window,
+            edit,
             canvas,
-            label,
+            foottip,
         })
     }
 
@@ -60,13 +63,16 @@ impl Component for MainModel {
             self.window => {
                 WindowEvent::Resize => MainMessage::ReDraw,
                 WindowEvent::Close => MainMessage::Close,
+            },
+            self.edit => {
+                EditEvent::Change => MainMessage::ReDraw,
             }
         }
     }
 
     async fn update_children(&mut self) -> Result<bool> {
         // update the window
-        update_children!(self.window, self.canvas, self.label)
+        update_children!(self.window, self.edit, self.canvas, self.foottip,)
     }
 
     async fn update(
@@ -93,19 +99,19 @@ impl Component for MainModel {
         {
             let mut panel = layout! {
                 StackPanel::new(Orient::Vertical),
-                self.label,
+                self.edit,
                 self.canvas => { grow: true },
+                self.foottip,
             };
             panel.set_size(csize)?;
         }
 
         let is_dark = ColorTheme::current()? == ColorTheme::Dark;
 
-        match qrcode::QrCode::with_version("Hello, QRCode", qrcode::Version::Normal(40), EcLevel::H)
-        {
+        match qrcode::QrCode::new(self.edit.text()?) {
             Err(e) => {
                 error!("Cannot generate QR: {e}");
-                self.label.set_text(format!("Error: {e}"))?;
+                self.foottip.set_text(format!("Error: {e}"))?;
             }
             Ok(qr) => {
                 let mut dark = Rgba::default_color(qrcode::Color::Dark);
@@ -131,7 +137,7 @@ impl Component for MainModel {
                 let rect = Rect::new(Point::new(left_top.width, left_top.height), qr_size);
 
                 ctx.draw_image(&image, rect, Some(Rect::new(Point::origin(), qr_size)))?;
-                ctx.close()?;
+                self.foottip.set_text(GENERATED)?;
             }
         }
 
