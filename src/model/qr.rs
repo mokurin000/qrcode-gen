@@ -160,9 +160,9 @@ impl MainModel {
                             ))?;
                         }
                     };
+                } else {
+                    self.foottip.set_text(format!("Error: {e}"))?;
                 }
-
-                self.foottip.set_text(format!("Error: {e}"))?;
             }
         }
 
