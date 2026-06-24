@@ -1,4 +1,5 @@
 pub mod model;
+mod qr;
 pub mod startup;
 #[cfg(windows)]
 pub mod windows;
