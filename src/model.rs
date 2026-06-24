@@ -40,6 +40,9 @@ impl Component for MainModel {
             window: Window = (()) => {
                 text: "QRCode Generator",
                 size: Size::new(800.0, 600.0),
+
+                #[cfg(all(windows, feature = "winui"))]
+                backdrop: Backdrop::Mica,
             },
             canvas: Canvas = (&window),
             eclevel: ComboBox = (&window) => {
@@ -67,9 +70,6 @@ impl Component for MainModel {
                 tooltip: "Status of the QRCode generation.",
             },
         }
-
-        #[cfg(all(windows, feature = "winui"))]
-        window.set_backdrop(Backdrop::Mica)?;
 
         window.show()?;
 

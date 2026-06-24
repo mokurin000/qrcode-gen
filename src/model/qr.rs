@@ -72,7 +72,7 @@ impl MainModel {
             ctx.draw_line(&pen, Point::origin(), Point::origin() + actual_size)?;
         }
 
-        ctx.draw_image(&image, rect, Some(Rect::new(Point::origin(), qr_size)))?;
+        ctx.draw_image(&image, rect, None)?;
 
         Ok(())
     }
