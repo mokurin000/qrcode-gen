@@ -23,6 +23,3 @@ fn android_main(app: AndroidApp) {
         }
     })
 }
-
-#[link(name = "c++_shared")]
-unsafe extern "C" {}
