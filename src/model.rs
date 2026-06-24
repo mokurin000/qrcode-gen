@@ -218,7 +218,18 @@ impl Component for MainModel {
                 let image = ctx.create_image(img)?;
 
                 let left_top = (actual_size - qr_size) / 2.0;
-                let rect = Rect::new(Point::new(left_top.width, left_top.height), qr_size);
+                let rect = Rect::new(Point::origin() + left_top, qr_size);
+
+                #[cfg(target_os = "android")]
+                {
+                    let brush = SolidColorBrush::new(if is_dark {
+                        Color::new(255, 255, 255, 255)
+                    } else {
+                        Color::new(0, 0, 0, 255)
+                    });
+                    let pen = BrushPen::new(&brush, 1.0);
+                    ctx.draw_line(&pen, Point::origin(), Point::origin() + actual_size)?;
+                }
 
                 ctx.draw_image(&image, rect, Some(Rect::new(Point::origin(), qr_size)))?;
 
