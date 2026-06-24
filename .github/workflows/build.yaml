@@ -1,10 +1,19 @@
 name: nightly-release
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
-  workflow_dispatch:
+    paths:
+      - "**.rs"
+      - "Cargo.toml"
+    tags:
+      - v*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
