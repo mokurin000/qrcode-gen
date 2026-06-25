@@ -1,56 +1,51 @@
 //! Internationalization support using Fluent.
 
-use std::sync::LazyLock;
-
 use fluent_bundle::{FluentArgs, FluentBundle, FluentResource};
-use icu::locale::fallback::LocaleFallbacker;
-use icu::locale::{DataLocale, Locale, locale};
+use icu_locale::{LanguageIdentifier, langid};
 
 use crate::Result;
 
 /// The set of supported locales.
-static SUPPORTED_LOCALES: LazyLock<Vec<Locale>> = LazyLock::new(|| {
-    vec![
-        "en-US".parse().expect("static locale"),
-        "zh-CN".parse().expect("static locale"),
-        "zh-TW".parse().expect("static locale"),
-        "hi-IN".parse().expect("static locale"),
-        "es-ES".parse().expect("static locale"),
-        "fr-FR".parse().expect("static locale"),
-        "ar-SA".parse().expect("static locale"),
-        "bn-BD".parse().expect("static locale"),
-        "pt-BR".parse().expect("static locale"),
-        "ru-RU".parse().expect("static locale"),
-        "ur-PK".parse().expect("static locale"),
-        "ja-JP".parse().expect("static locale"),
-        "de-DE".parse().expect("static locale"),
-        "it-IT".parse().expect("static locale"),
-        "ko-KR".parse().expect("static locale"),
-        "nl-NL".parse().expect("static locale"),
-        "sv-SE".parse().expect("static locale"),
-        "nb-NO".parse().expect("static locale"),
-        "da-DK".parse().expect("static locale"),
-        "fi-FI".parse().expect("static locale"),
-        "pl-PL".parse().expect("static locale"),
-        "pt-PT".parse().expect("static locale"),
-        "el-GR".parse().expect("static locale"),
-        "cs-CZ".parse().expect("static locale"),
-        "hu-HU".parse().expect("static locale"),
-        "ro-RO".parse().expect("static locale"),
-        "he-IL".parse().expect("static locale"),
-        "th-TH".parse().expect("static locale"),
-        "tr-TR".parse().expect("static locale"),
-        "vi-VN".parse().expect("static locale"),
-        "id-ID".parse().expect("static locale"),
-        "ms-MY".parse().expect("static locale"),
-    ]
-});
+static SUPPORTED_LOCALES: [LanguageIdentifier; 32] = [
+    langid!("en-US"),
+    langid!("zh-CN"),
+    langid!("zh-TW"),
+    langid!("hi-IN"),
+    langid!("es-ES"),
+    langid!("fr-FR"),
+    langid!("ar-SA"),
+    langid!("bn-BD"),
+    langid!("pt-BR"),
+    langid!("ru-RU"),
+    langid!("ur-PK"),
+    langid!("ja-JP"),
+    langid!("de-DE"),
+    langid!("it-IT"),
+    langid!("ko-KR"),
+    langid!("nl-NL"),
+    langid!("sv-SE"),
+    langid!("nb-NO"),
+    langid!("da-DK"),
+    langid!("fi-FI"),
+    langid!("pl-PL"),
+    langid!("pt-PT"),
+    langid!("el-GR"),
+    langid!("cs-CZ"),
+    langid!("hu-HU"),
+    langid!("ro-RO"),
+    langid!("he-IL"),
+    langid!("th-TH"),
+    langid!("tr-TR"),
+    langid!("vi-VN"),
+    langid!("id-ID"),
+    langid!("ms-MY"),
+];
 
 /// Resolve a system locale string to the best matching supported locale.
-pub fn resolve_locale(sys_str: &str) -> Locale {
-    let locale: Locale = match sys_str.parse() {
+pub fn resolve_locale(sys_str: &str) -> LanguageIdentifier {
+    let locale: LanguageIdentifier = match sys_str.parse() {
         Ok(l) => l,
-        Err(_) => return locale!("en-US"),
+        Err(_) => return langid!("en-US"),
     };
 
     // Direct match check
@@ -58,30 +53,14 @@ pub fn resolve_locale(sys_str: &str) -> Locale {
         return locale;
     }
 
-    // Walk the ICU fallback chain to find the closest supported locale.
-    let fallbacker = LocaleFallbacker::new();
-    let mut fallbacks = fallbacker
-        .for_config(Default::default())
-        .fallback_for(locale.clone().into());
-
-    loop {
-        let current = fallbacks.get();
-        let current_locale = current.into_locale();
-
-        // und: fallback to en-US
-        if current == &DataLocale::default() {
-            break locale!("en-US");
-        }
-
-        if SUPPORTED_LOCALES
-            .iter()
-            .any(|locale| locale == &current_locale)
-        {
-            return current_locale;
-        }
-
-        fallbacks.step();
-    }
+    let Some((matched, _)) = language_matcher::LanguageMatcher::new()
+        .matches(locale, &SUPPORTED_LOCALES)
+        .into_iter()
+        .next()
+    else {
+        return langid!("en-US");
+    };
+    matched.clone()
 }
 
 /// Load a `FluentBundle` for the given locale string (e.g. `"en-US"`).
