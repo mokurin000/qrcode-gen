@@ -1,5 +1,5 @@
 use super::*;
-use icu_locale::langid;
+use icu_locale_core::langid;
 
 // --- Locale resolution ---
 

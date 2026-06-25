@@ -1,7 +1,7 @@
 //! Internationalization support using Fluent.
 
 use fluent_bundle::{FluentArgs, FluentBundle, FluentResource};
-use icu_locale::{LanguageIdentifier, langid};
+use icu_locale_core::{LanguageIdentifier, langid};
 
 use crate::Result;
 

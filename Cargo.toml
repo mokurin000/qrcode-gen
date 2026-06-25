@@ -23,7 +23,7 @@ winio = { version = "0.12.0-rc.5", features = [
 # i18n
 fluent-bundle = "0.16"
 sys-locale = "0.3"
-icu_locale = "2.2.0"
+icu_locale_core = "2.2.0"
 language-matcher = "0.2"
 
 # QRCode

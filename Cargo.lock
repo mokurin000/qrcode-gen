@@ -2249,7 +2249,7 @@ dependencies = [
  "color-eyre",
  "compio",
  "fluent-bundle",
- "icu_locale",
+ "icu_locale_core",
  "image",
  "language-matcher",
  "qrcode",
