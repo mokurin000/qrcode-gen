@@ -1,0 +1,12 @@
+-version = Phiên bản
+-error = Lỗi
+-ec-level = Mức EC
+-qr-code = Mã QR
+
+version-normal = { -version }: { $v }, { -ec-level }: { $ec_level }
+version-micro-simple = { -version }: M{ $v }
+version-micro = { -version }: M{ $v }, { -ec-level }: { $ec_level }
+error-ec-level-not-supported = { -error }: { -ec-level } { $ec_level } không được hỗ trợ trong M{ $v }
+error-data-too-long = { -error }: dữ liệu quá dài
+error-unsupported-charset = { -error }: bộ ký tự không được hỗ trợ
+error-unknown = { -error }: lỗi không xác định

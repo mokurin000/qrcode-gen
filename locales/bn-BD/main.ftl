@@ -1,0 +1,12 @@
+-version = সংস্করণ
+-error = ত্রুটি
+-ec-level = EC স্তর
+-qr-code = কিউআর কোড
+
+version-normal = { -version }: { $v }, { -ec-level }: { $ec_level }
+version-micro-simple = { -version }: M{ $v }
+version-micro = { -version }: M{ $v }, { -ec-level }: { $ec_level }
+error-ec-level-not-supported = { -error }: { -ec-level } { $ec_level } M{ $v } এ সমর্থিত নয়
+error-data-too-long = { -error }: ডেটা অনেক লম্বা
+error-unsupported-charset = { -error }: অসমর্থিত ক্যারেক্টার সেট
+error-unknown = { -error }: অজানা ত্রুটি

@@ -1,0 +1,12 @@
+-version = เวอร์ชัน
+-error = ข้อผิดพลาด
+-ec-level = ระดับ EC
+-qr-code = คิวอาร์โค้ด
+
+version-normal = { -version }: { $v }, { -ec-level }: { $ec_level }
+version-micro-simple = { -version }: M{ $v }
+version-micro = { -version }: M{ $v }, { -ec-level }: { $ec_level }
+error-ec-level-not-supported = { -error }: { -ec-level } { $ec_level } ไม่รองรับใน M{ $v }
+error-data-too-long = { -error }: ข้อมูลยาวเกินไป
+error-unsupported-charset = { -error }: ชุดอักขระที่ไม่รองรับ
+error-unknown = { -error }: ข้อผิดพลาดที่ไม่ทราบสาเหตุ

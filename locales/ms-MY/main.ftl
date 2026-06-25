@@ -1,0 +1,12 @@
+-version = Versi
+-error = Ralat
+-ec-level = Tahap EC
+-qr-code = Kod QR
+
+version-normal = { -version }: { $v }, { -ec-level }: { $ec_level }
+version-micro-simple = { -version }: M{ $v }
+version-micro = { -version }: M{ $v }, { -ec-level }: { $ec_level }
+error-ec-level-not-supported = { -error }: { -ec-level } { $ec_level } tidak disokong dalam M{ $v }
+error-data-too-long = { -error }: data terlalu panjang
+error-unsupported-charset = { -error }: set aksara tidak disokong
+error-unknown = { -error }: ralat tidak diketahui

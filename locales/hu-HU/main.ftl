@@ -1,0 +1,12 @@
+-version = Verzió
+-error = Hiba
+-ec-level = EC-szint
+-qr-code = QR-kód
+
+version-normal = { -version }: { $v }, { -ec-level }: { $ec_level }
+version-micro-simple = { -version }: M{ $v }
+version-micro = { -version }: M{ $v }, { -ec-level }: { $ec_level }
+error-ec-level-not-supported = { -error }: { -ec-level } { $ec_level } nem támogatott M{ $v }-ben
+error-data-too-long = { -error }: az adatok túl hosszúak
+error-unsupported-charset = { -error }: nem támogatott karakterkészlet
+error-unknown = { -error }: ismeretlen hiba
