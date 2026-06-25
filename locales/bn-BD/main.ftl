@@ -16,3 +16,4 @@ version-tooltip = QR কোড স্পেক সংস্করণ।
 textbox-tooltip = QR কোড জেনারেট করার জন্য টেক্সট।
 status-tooltip = QR কোড জেনারেশনের অবস্থা।
 version-auto = স্বয়ং
+export-png-file = .png তে রপ্তানি করুন

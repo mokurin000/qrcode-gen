@@ -16,3 +16,4 @@ version-tooltip = إصدار مواصفات QR Code
 textbox-tooltip = النص لإنشاء رمز QR له
 status-tooltip = حالة إنشاء رمز QR
 version-auto = تلقائي
+export-png-file = تصدير إلى .png

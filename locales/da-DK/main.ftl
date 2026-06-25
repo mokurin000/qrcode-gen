@@ -16,3 +16,4 @@ version-tooltip = QR-kodespecifikationsversion
 textbox-tooltip = Tekst til at generere QR-kode for
 status-tooltip = Status for QR-kodegenerering
 version-auto = Auto
+export-png-file = Eksporter til .png

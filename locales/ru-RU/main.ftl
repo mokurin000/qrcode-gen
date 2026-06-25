@@ -16,3 +16,4 @@ version-tooltip = Версия спецификации QR-кода
 textbox-tooltip = Текст для генерации QR-кода
 status-tooltip = Статус генерации QR-кода
 version-auto = Авто
+export-png-file = Экспорт в .png

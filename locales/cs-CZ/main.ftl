@@ -16,3 +16,4 @@ version-tooltip = Verze specifikace QR kódu
 textbox-tooltip = Text pro generování QR kódu
 status-tooltip = Stav generování QR kódu
 version-auto = Automaticky
+export-png-file = Exportovat do .png

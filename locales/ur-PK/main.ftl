@@ -16,3 +16,4 @@ version-tooltip = کیو آر کوڈ سپیک ورژن۔
 textbox-tooltip = کیو آر کوڈ جنریٹ کرنے کے لیے متن۔
 status-tooltip = کیو آر کوڈ جنریشن کی حیثیت۔
 version-auto = خودکار
+export-png-file = .png میں برآمد کریں

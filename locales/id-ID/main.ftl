@@ -16,3 +16,4 @@ version-tooltip = Versi spesifikasi kode QR
 textbox-tooltip = Teks untuk membuat kode QR
 status-tooltip = Status pembuatan kode QR
 version-auto = Otomatis
+export-png-file = Ekspor ke .png

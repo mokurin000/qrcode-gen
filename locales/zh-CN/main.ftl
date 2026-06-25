@@ -16,3 +16,4 @@ version-tooltip = 二维码规格版本
 textbox-tooltip = 要生成二维码的文本
 status-tooltip = 二维码生成状态
 version-auto = 自动
+export-png-file = 导出为 .png

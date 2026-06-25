@@ -16,3 +16,4 @@ version-tooltip = QR Kodu spesifikasyon sürümü
 textbox-tooltip = QR Kodu oluşturmak için metin
 status-tooltip = QR Kodu oluşturma durumu
 version-auto = Otomatik
+export-png-file = .png'ye dışa aktar

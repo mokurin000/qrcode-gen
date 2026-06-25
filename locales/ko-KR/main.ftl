@@ -16,3 +16,4 @@ version-tooltip = QR 코드 사양 버전
 textbox-tooltip = QR 코드를 생성할 텍스트
 status-tooltip = QR 코드 생성 상태
 version-auto = 자동
+export-png-file = .png로 내보내기
