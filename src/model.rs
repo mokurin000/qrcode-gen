@@ -48,6 +48,8 @@ pub enum MainMessage {
     Noop,
     /// Main window has been resized
     Resize,
+    /// Theme changed
+    ThemeChanged,
     /// QRCode must be updated
     ContentChanged,
     /// Close main window
@@ -156,7 +158,7 @@ impl Component for MainModel {
             self.window => {
                 WindowEvent::Resize => MainMessage::Resize,
                 WindowEvent::Close => MainMessage::Close,
-                WindowEvent::ThemeChanged => MainMessage::ContentChanged,
+                WindowEvent::ThemeChanged => MainMessage::ThemeChanged,
             },
             self.textbox => {
                 TextBoxEvent::Change => MainMessage::ContentChanged,
@@ -198,6 +200,7 @@ impl Component for MainModel {
         match message {
             MainMessage::Noop => Ok(false),
             MainMessage::Resize => Ok(true),
+            MainMessage::ThemeChanged => Ok(true),
             MainMessage::ContentChanged => {
                 self.qrcode.take();
                 Ok(true)
