@@ -146,7 +146,8 @@ impl MainModel {
     ) -> Result<()> {
         match &qr {
             Ok(qr) => {
-                self.export_qr.enable()?;
+                self.export_png.enable()?;
+                self.export_svg.enable()?;
 
                 let actual_ec = qr.error_correction_level();
                 match qr.version() {
@@ -177,7 +178,8 @@ impl MainModel {
                 }
             }
             Err(e) => {
-                self.export_qr.disable()?;
+                self.export_png.disable()?;
+                self.export_svg.disable()?;
 
                 error!("Cannot generate QR: {e}");
 

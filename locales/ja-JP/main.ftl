@@ -16,5 +16,5 @@ version-tooltip = QRコード仕様バージョン
 textbox-tooltip = QRコードを生成するテキスト
 status-tooltip = QRコード生成のステータス
 version-auto = 自動
-export-png-file = .pngにエクスポート
-export-png-tooltip = QRコードを.PNG画像としてエクスポート
+export-file = .{ $format }にエクスポート
+export-tooltip = QRコードを.{ $format }画像としてエクスポート

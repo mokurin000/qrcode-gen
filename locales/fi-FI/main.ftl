@@ -16,5 +16,5 @@ version-tooltip = QR-koodin spesifikaatioversio
 textbox-tooltip = Teksti, josta QR-koodi luodaan
 status-tooltip = QR-koodin luonnin tila
 version-auto = Automaatti
-export-png-file = Vie .png-muotoon
-export-png-tooltip = Vie QR-koodi .PNG-kuvana
+export-file = Vie .{ $format }-muotoon
+export-tooltip = Vie QR-koodi .{ $format }-kuvana

@@ -16,5 +16,5 @@ version-tooltip = Έκδοση προδιαγραφής QR κωδικού
 textbox-tooltip = Κείμενο για δημιουργία QR κωδικού
 status-tooltip = Κατάσταση της δημιουργίας QR κωδικού
 version-auto = Αυτόματο
-export-png-file = Εξαγωγή σε .png
-export-png-tooltip = Εξαγωγή του QR κωδικού ως εικόνα .PNG
+export-file = Εξαγωγή σε .{ $format }
+export-tooltip = Εξαγωγή του QR κωδικού ως εικόνα .{ $format }

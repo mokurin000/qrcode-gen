@@ -16,5 +16,5 @@ version-tooltip = کیو آر کوڈ سپیک ورژن۔
 textbox-tooltip = کیو آر کوڈ جنریٹ کرنے کے لیے متن۔
 status-tooltip = کیو آر کوڈ جنریشن کی حیثیت۔
 version-auto = خودکار
-export-png-file = .png میں برآمد کریں
-export-png-tooltip = QR کوڈ کو .PNG تصویر کے طور پر برآمد کریں
+export-file = .{ $format } میں برآمد کریں
+export-tooltip = QR کوڈ کو .{ $format } تصویر کے طور پر برآمد کریں

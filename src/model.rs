@@ -1,6 +1,6 @@
 //! Main GUI component for the QR code generator.
 
-use fluent_bundle::{FluentBundle, FluentResource};
+use fluent_bundle::{FluentArgs, FluentBundle, FluentResource};
 use qrcode::QrCode;
 use qrcode::types::QrError;
 use spdlog::{error, info};
@@ -32,7 +32,9 @@ pub struct MainModel {
     status: Child<Label>,
 
     /// Button to export QR code as PNG.
-    export_qr: Child<Button>,
+    export_png: Child<Button>,
+    /// Button to export QR code as SVG.
+    export_svg: Child<Button>,
 
     /// Cached QR code result (None = needs regeneration).
     qrcode: Option<std::result::Result<QrCode, QrError>>,
@@ -50,8 +52,10 @@ pub enum MainMessage {
     ContentChanged,
     /// Close main window
     Close,
-    /// Export QR code image
-    ExportQRcode,
+    /// Export QR code as PNG
+    ExportQRcodePNG,
+    /// Export QR code as SVG
+    ExportQRcodeSVG,
 }
 
 impl Component for MainModel {
@@ -74,8 +78,15 @@ impl Component for MainModel {
         let textbox_tooltip = format_ftl(&bundle, "textbox-tooltip", None);
         let status_tooltip = format_ftl(&bundle, "status-tooltip", None);
         let version_auto = format_ftl(&bundle, "version-auto", None);
-        let export_png = format_ftl(&bundle, "export-png-file", None);
-        let export_png_tooltip = format_ftl(&bundle, "export-png-tooltip", None);
+
+        let mut png_args = FluentArgs::new();
+        png_args.set("format", "png");
+        let export_png_text = format_ftl(&bundle, "export-file", Some(&png_args));
+        let export_png_tooltip = format_ftl(&bundle, "export-tooltip", Some(&png_args));
+        let mut svg_args = FluentArgs::new();
+        svg_args.set("format", "svg");
+        let export_svg_text = format_ftl(&bundle, "export-file", Some(&svg_args));
+        let export_svg_tooltip = format_ftl(&bundle, "export-tooltip", Some(&svg_args));
 
         // create & initialize the window with localized strings
         init! {
@@ -111,9 +122,13 @@ impl Component for MainModel {
                 halign: HAlign::Center,
                 tooltip: status_tooltip,
             },
-            export_qr: Button = (&window) => {
-                text: export_png,
+            export_png: Button = (&window) => {
+                text: export_png_text,
                 tooltip: export_png_tooltip,
+            },
+            export_svg: Button = (&window) => {
+                text: export_svg_text,
+                tooltip: export_svg_tooltip,
             }
         }
 
@@ -127,7 +142,8 @@ impl Component for MainModel {
             canvas,
             status,
             bundle,
-            export_qr,
+            export_png,
+            export_svg,
 
             qrcode: None,
         })
@@ -151,8 +167,11 @@ impl Component for MainModel {
             self.version => {
                 ComboBoxEvent::Select => MainMessage::ContentChanged,
             },
-            self.export_qr => {
-                ButtonEvent::Click => MainMessage::ExportQRcode,
+            self.export_png => {
+                ButtonEvent::Click => MainMessage::ExportQRcodePNG,
+            },
+            self.export_svg => {
+                ButtonEvent::Click => MainMessage::ExportQRcodeSVG,
             }
         }
     }
@@ -165,7 +184,8 @@ impl Component for MainModel {
             self.canvas,
             self.eclevel,
             self.version,
-            self.export_qr,
+            self.export_png,
+            self.export_svg,
         )
     }
 
@@ -188,8 +208,14 @@ impl Component for MainModel {
                 // need not to call `render`
                 Ok(false)
             }
-            MainMessage::ExportQRcode => {
+            MainMessage::ExportQRcodePNG => {
                 if let Err(e) = self.export_png().await {
+                    error!("Failed to open file dialog: {e}");
+                }
+                Ok(false)
+            }
+            MainMessage::ExportQRcodeSVG => {
+                if let Err(e) = self.export_svg().await {
                     error!("Failed to open file dialog: {e}");
                 }
                 Ok(false)
@@ -203,16 +229,27 @@ impl Component for MainModel {
         let mut control = layout! {
             StackPanel::new(Orient::Horizontal),
             self.version => {
-                halign: HAlign::Center,
                 grow: true,
                 margin: Margin::new_all_same(MARGIN),
             },
             self.eclevel => {
-                halign: HAlign::Center,
                 grow: true,
                 margin: Margin::new(MARGIN, MARGIN, MARGIN, 0.0),
             },
         };
+
+        let mut export = layout! {
+            StackPanel::new(Orient::Horizontal),
+            self.export_png => {
+                grow: true,
+                margin: Margin::new_all_same(MARGIN),
+            },
+            self.export_svg => {
+                grow: true,
+                margin: Margin::new(MARGIN, MARGIN, MARGIN, 0.0),
+            },
+        };
+
         let mut panel = layout! {
             StackPanel::new(Orient::Vertical),
             self.textbox => {
@@ -224,9 +261,7 @@ impl Component for MainModel {
                 margin: Margin::new_all_same(MARGIN_CANVAS),
             },
             self.status,
-            self.export_qr => {
-                margin: Margin::new_all_same(MARGIN),
-            },
+            export,
         };
         panel.set_size(csize)?;
 

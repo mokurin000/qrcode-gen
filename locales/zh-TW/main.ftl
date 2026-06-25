@@ -16,5 +16,5 @@ version-tooltip = 二維碼規格版本
 textbox-tooltip = 要生成二維碼的文字
 status-tooltip = 二維碼生成狀態
 version-auto = 自動
-export-png-file = 匯出為 .png
-export-png-tooltip = 將二維碼匯出為 .PNG 圖片
+export-file = 匯出為 .{ $format }
+export-tooltip = 將二維碼匯出為 .{ $format } 圖片

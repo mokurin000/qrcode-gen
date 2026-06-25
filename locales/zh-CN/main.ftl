@@ -16,5 +16,5 @@ version-tooltip = 二维码规格版本
 textbox-tooltip = 要生成二维码的文本
 status-tooltip = 二维码生成状态
 version-auto = 自动
-export-png-file = 导出为 .png
-export-png-tooltip = 将二维码导出为 .PNG 图片
+export-file = 导出为 .{ $format }
+export-tooltip = 将二维码导出为 .{ $format } 图片

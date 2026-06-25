@@ -16,5 +16,5 @@ version-tooltip = Phiên bản thông số mã QR
 textbox-tooltip = Văn bản để tạo mã QR
 status-tooltip = Trạng thái tạo mã QR
 version-auto = Tự động
-export-png-file = Xuất ra .png
-export-png-tooltip = Xuất mã QR dưới dạng hình ảnh .PNG
+export-file = Xuất ra .{ $format }
+export-tooltip = Xuất mã QR dưới dạng hình ảnh .{ $format }

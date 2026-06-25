@@ -16,5 +16,5 @@ version-tooltip = QR-kód specifikációs verzió
 textbox-tooltip = Szöveg a QR-kód generálásához
 status-tooltip = QR-kód generálás állapota
 version-auto = Automatikus
-export-png-file = Exportálás .png-be
-export-png-tooltip = QR-kód exportálása .PNG képként
+export-file = Exportálás .{ $format }-be
+export-tooltip = QR-kód exportálása .{ $format } képként

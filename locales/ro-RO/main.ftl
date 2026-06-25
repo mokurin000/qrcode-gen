@@ -16,5 +16,5 @@ version-tooltip = Versiunea specificației codului QR
 textbox-tooltip = Text pentru generarea codului QR
 status-tooltip = Starea generării codului QR
 version-auto = Automat
-export-png-file = Exportă în .png
-export-png-tooltip = Exportă codul QR ca imagine .PNG
+export-file = Exportă în .{ $format }
+export-tooltip = Exportă codul QR ca imagine .{ $format }
