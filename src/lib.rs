@@ -1,5 +1,6 @@
 //! Root module of the QR code generator app.
 
+pub mod i18n;
 pub mod model;
 pub mod timer;
 #[cfg(windows)]
