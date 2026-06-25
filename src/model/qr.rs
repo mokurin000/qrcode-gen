@@ -1,6 +1,6 @@
 //! QR code generation and rendering logic.
 
-use fluent_bundle::FluentArgs;
+use fluent_bundle::{FluentArgs, FluentBundle, FluentResource};
 use image::{DynamicImage, Rgba};
 use qrcode::render::Pixel as _;
 use qrcode::types::QrError;
@@ -12,6 +12,24 @@ use crate::Result;
 use crate::model::MainModel;
 #[cfg(feature = "timing")]
 use crate::timer::Timer;
+
+/// Format a localized message from a Fluent bundle.
+pub(super) fn format_ftl(
+    bundle: &FluentBundle<FluentResource>,
+    msg_id: &str,
+    args: Option<&FluentArgs<'_>>,
+) -> String {
+    let mut errors = Vec::new();
+    let msg = bundle
+        .get_message(msg_id)
+        .unwrap_or_else(|| panic!("missing fluent message '{msg_id}'"));
+    let pattern = msg
+        .value()
+        .unwrap_or_else(|| panic!("fluent message '{msg_id}' has no value"));
+    bundle
+        .format_pattern(pattern, args, &mut errors)
+        .into_owned()
+}
 
 impl MainModel {
     /// Update QR code, foottip and draw it on the canvas.
@@ -133,17 +151,7 @@ impl MainModel {
 
     /// Format a localized message from the Fluent bundle.
     fn format_ftl(&self, msg_id: &str, args: Option<&FluentArgs<'_>>) -> String {
-        let mut errors = Vec::new();
-        let msg = self
-            .bundle
-            .get_message(msg_id)
-            .unwrap_or_else(|| panic!("missing fluent message '{msg_id}'"));
-        let pattern = msg
-            .value()
-            .unwrap_or_else(|| panic!("fluent message '{msg_id}' has no value"));
-        self.bundle
-            .format_pattern(pattern, args, &mut errors)
-            .into_owned()
+        format_ftl(&self.bundle, msg_id, args)
     }
 
     /// Show QR code info or error message in the status bar.

@@ -55,7 +55,6 @@ pub fn resolve_locale(sys_str: &str) -> Locale {
 
     // Direct match check
     if SUPPORTED_LOCALES.contains(&locale) {
-        eprintln!("direct match: {locale}");
         return locale;
     }
 

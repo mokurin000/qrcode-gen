@@ -3,6 +3,7 @@
 use fluent_bundle::{FluentBundle, FluentResource};
 use qrcode::QrCode;
 use qrcode::types::QrError;
+use spdlog::info;
 use winio::prelude::*;
 
 use crate::Result;
@@ -49,10 +50,24 @@ impl Component for MainModel {
     type Message = MainMessage;
 
     async fn init(_init: Self::Init<'_>, _sender: &ComponentSender<Self>) -> Result<Self> {
-        // create & initialize the window
+        // Resolve system locale and load the Fluent bundle before creating widgets.
+        let sys_locale = sys_locale::get_locale().unwrap_or_else(|| "en-US".into());
+        let locale = crate::i18n::resolve_locale(&sys_locale);
+        info!("decided locale: {locale}");
+        let bundle = crate::i18n::load_bundle(&locale.to_string())?;
+
+        // Format all localized strings from the bundle.
+        let title = self::qr::format_ftl(&bundle, "window-title", None);
+        let ec_tooltip = self::qr::format_ftl(&bundle, "ec-level-tooltip", None);
+        let version_tooltip = self::qr::format_ftl(&bundle, "version-tooltip", None);
+        let textbox_tooltip = self::qr::format_ftl(&bundle, "textbox-tooltip", None);
+        let status_tooltip = self::qr::format_ftl(&bundle, "status-tooltip", None);
+        let version_auto = self::qr::format_ftl(&bundle, "version-auto", None);
+
+        // create & initialize the window with localized strings
         init! {
             window: Window = (()) => {
-                text: "QRCode Generator",
+                text: title,
                 size: Size::new(800.0, 600.0),
 
                 #[cfg(all(windows, feature = "winui"))]
@@ -61,10 +76,10 @@ impl Component for MainModel {
             canvas: Canvas = (&window),
             eclevel: ComboBox = (&window) => {
                 items: ["L (7%)", "M (15%)", "Q (25%)", "H (30%)"],
-                tooltip: "Error correction level."
+                tooltip: ec_tooltip,
             },
             version: ComboBox = (&window) => {
-                items: ["Auto".to_string()].into_iter()
+                items: [version_auto].into_iter()
                     .chain((1..=40).map(|n| n.to_string()))
                     .chain(
                         [
@@ -74,23 +89,18 @@ impl Component for MainModel {
                             "M4".into(),
                         ]
                     ),
-                tooltip: "QRCode spec version."
+                tooltip: version_tooltip,
             },
             textbox: TextBox = (&window) => {
-                tooltip: "Text to generate QRCode for.",
+                tooltip: textbox_tooltip,
             },
             status: Label = (&window) => {
                 halign: HAlign::Center,
-                tooltip: "Status of the QRCode generation.",
+                tooltip: status_tooltip,
             },
         }
 
         window.show()?;
-
-        // Resolve system locale and load the Fluent bundle.
-        let sys_locale = sys_locale::get_locale().unwrap_or_else(|| "en-US".into());
-        let locale = crate::i18n::resolve_locale(&sys_locale);
-        let bundle = crate::i18n::load_bundle(&locale.to_string())?;
 
         Ok(Self {
             window,
