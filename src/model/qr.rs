@@ -166,7 +166,19 @@ impl MainModel {
                         "Error: EC level {ec_level:?} not supported in M{v}"
                     ))?;
                 } else {
-                    self.foottip.set_text(format!("Error: {e}"))?;
+                    let text = match e {
+                        QrError::DataTooLong => "Error: data too long",
+                        QrError::UnsupportedCharacterSet => "Error: unsupported character set",
+
+                        // should not happen unless we push kanjis explictly
+                        QrError::InvalidCharacter |
+                        // should be handled in the Micro branch
+                        QrError::InvalidVersion |
+                        // unreachale: we do not write ECI bits ourselves
+                        // See qrcode::bits::Bits::push_eci_designator
+                        QrError::InvalidEciDesignator => "Error: unknown error",
+                    };
+                    self.foottip.set_text(text)?;
                 }
             }
         }
