@@ -1,5 +1,6 @@
 //! QR code generation and rendering logic.
 
+use fluent_bundle::FluentArgs;
 use image::{DynamicImage, Rgba};
 use qrcode::render::Pixel as _;
 use qrcode::types::QrError;
@@ -126,6 +127,21 @@ impl MainModel {
         qr
     }
 
+    /// Format a localized message from the Fluent bundle.
+    fn format_ftl(&self, msg_id: &str, args: Option<&FluentArgs<'_>>) -> String {
+        let mut errors = Vec::new();
+        let msg = self
+            .bundle
+            .get_message(msg_id)
+            .unwrap_or_else(|| panic!("missing fluent message '{msg_id}'"));
+        let pattern = msg
+            .value()
+            .unwrap_or_else(|| panic!("fluent message '{msg_id}' has no value"));
+        self.bundle
+            .format_pattern(pattern, args, &mut errors)
+            .into_owned()
+    }
+
     /// Show QR code info or error message in the status bar.
     fn update_foottip(
         &mut self,
@@ -135,22 +151,31 @@ impl MainModel {
     ) -> Result<()> {
         match &qr {
             Ok(qr) => {
-                let ec_level = qr.error_correction_level();
+                let actual_ec = qr.error_correction_level();
                 match qr.version() {
                     Version::Normal(v) => {
-                        self.foottip
-                            .set_text(format!("Version: {v}, EcLevel: {ec_level:?}"))?;
+                        let mut args = FluentArgs::new();
+                        args.set("v", v as i64);
+                        args.set("ec_level", format!("{actual_ec:?}"));
+                        let text = self.format_ftl("version-normal", Some(&args));
+                        self.foottip.set_text(text)?;
                     }
                     // https://www.qrcode.com/en/codes/microqr.html
                     // M1 does not support any error corrction
                     // M2~M3 supports only L, M
                     // M4 supports only L, M, Q
                     Version::Micro(v) if v <= 1 => {
-                        self.foottip.set_text(format!("Version: M{v}"))?;
+                        let mut args = FluentArgs::new();
+                        args.set("v", v as i64);
+                        let text = self.format_ftl("version-micro-simple", Some(&args));
+                        self.foottip.set_text(text)?;
                     }
                     Version::Micro(v) => {
-                        self.foottip
-                            .set_text(format!("Version: M{v}, EcLevel: {ec_level:?}"))?;
+                        let mut args = FluentArgs::new();
+                        args.set("v", v as i64);
+                        args.set("ec_level", format!("{actual_ec:?}"));
+                        let text = self.format_ftl("version-micro", Some(&args));
+                        self.foottip.set_text(text)?;
                     }
                 }
             }
@@ -162,13 +187,15 @@ impl MainModel {
                     | (2 | 3, EcLevel::Q | EcLevel::H)
                     | (4, EcLevel::H) = (v, ec_level)
                 {
-                    self.foottip.set_text(format!(
-                        "Error: EC level {ec_level:?} not supported in M{v}"
-                    ))?;
+                    let mut args = FluentArgs::new();
+                    args.set("v", v as i64);
+                    args.set("ec_level", format!("{ec_level:?}"));
+                    let text = self.format_ftl("error-ec-level-not-supported", Some(&args));
+                    self.foottip.set_text(text)?;
                 } else {
-                    let text = match e {
-                        QrError::DataTooLong => "Error: data too long",
-                        QrError::UnsupportedCharacterSet => "Error: unsupported character set",
+                    let msg_id = match e {
+                        QrError::DataTooLong => "error-data-too-long",
+                        QrError::UnsupportedCharacterSet => "error-unsupported-charset",
 
                         // should not happen unless we push kanjis explictly
                         QrError::InvalidCharacter |
@@ -176,8 +203,9 @@ impl MainModel {
                         QrError::InvalidVersion |
                         // unreachale: we do not write ECI bits ourselves
                         // See qrcode::bits::Bits::push_eci_designator
-                        QrError::InvalidEciDesignator => "Error: unknown error",
+                        QrError::InvalidEciDesignator => "error-unknown",
                     };
+                    let text = self.format_ftl(msg_id, None);
                     self.foottip.set_text(text)?;
                 }
             }

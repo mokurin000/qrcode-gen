@@ -28,10 +28,10 @@ fn main() -> Result<()> {
     // Currently, spdlog-rs handled this.
     color_eyre::install()?;
 
-    Ok(App::builder()
+    App::builder()
         .name(APP_ID)
         .build()?
-        .block_on(MainModel::run_until_event(init))?)
+        .block_on(MainModel::run_until_event(init))
 }
 
 /// Android entry point is `android_main` instead.

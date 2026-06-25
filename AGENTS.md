@@ -2,7 +2,13 @@
 
 Prefer `bash -c '...'` to run every commands, never use nushell, powershell or cmd.
 
+`2>&1` is always disallowed and unnessacary.
+
 `rg` is provided to quickly grep.
+
+## Documentation
+
+DO NOT include implementation details in the documentation, unless platform-specific issues may happen, e.g.
 
 ## Code style
 

@@ -17,7 +17,7 @@ impl BOOL {
         if self.0 == 0 {
             let error = std::io::Error::last_os_error();
             error!("Failed to {case}: {error}");
-            return Err(error);
+            Err(error)
         } else {
             Ok(())
         }

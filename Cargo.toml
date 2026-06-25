@@ -22,7 +22,6 @@ image = { version = "0.25.10", default-features = false }
 
 # i18n
 fluent-bundle = "0.16"
-unic-langid = "0.9"
 sys-locale = "0.3"
 icu = "2.2"
 

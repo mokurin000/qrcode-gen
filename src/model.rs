@@ -1,5 +1,6 @@
 //! Main GUI component for the QR code generator.
 
+use fluent_bundle::{FluentBundle, FluentResource};
 use qrcode::QrCode;
 use qrcode::types::QrError;
 use winio::prelude::*;
@@ -25,6 +26,9 @@ pub struct MainModel {
 
     /// Cached QR code result (None = needs regeneration).
     qrcode: Option<std::result::Result<QrCode, QrError>>,
+
+    /// Fluent i18n bundle for the resolved system locale.
+    bundle: FluentBundle<FluentResource>,
 }
 
 pub enum MainMessage {
@@ -83,6 +87,11 @@ impl Component for MainModel {
 
         window.show()?;
 
+        // Resolve system locale and load the Fluent bundle.
+        let sys_locale = sys_locale::get_locale().unwrap_or_else(|| "en-US".into());
+        let locale = crate::i18n::resolve_locale(&sys_locale);
+        let bundle = crate::i18n::load_bundle(&locale.to_string())?;
+
         Ok(Self {
             window,
             textbox,
@@ -91,6 +100,7 @@ impl Component for MainModel {
             canvas,
             foottip,
             qrcode: None,
+            bundle,
         })
     }
 

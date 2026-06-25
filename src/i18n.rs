@@ -5,7 +5,6 @@ use std::sync::LazyLock;
 use fluent_bundle::{FluentBundle, FluentResource};
 use icu::locale::fallback::LocaleFallbacker;
 use icu::locale::{DataLocale, Locale, locale};
-use unic_langid::LanguageIdentifier;
 
 use crate::Result;
 
@@ -72,7 +71,7 @@ pub fn load_bundle(locale_str: &str) -> Result<FluentBundle<FluentResource>> {
         _ => include_str!("../locales/en-US/main.ftl"),
     };
 
-    let langid: LanguageIdentifier = locale_str
+    let langid = locale_str
         .parse()
         .map_err(|e| color_eyre::eyre::eyre!("invalid language identifier '{locale_str}': {e}"))?;
 
