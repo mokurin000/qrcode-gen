@@ -42,7 +42,6 @@ jobs:
           ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/29.0.14206865
         with:
           gradle-version: "9.6.0"
-          build-root-directory: android
 
       - name: 🏗 Build APKs
         run: gradle assembleRelease
