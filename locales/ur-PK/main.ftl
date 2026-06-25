@@ -1,0 +1,12 @@
+-version = ورژن
+-error = خرابی
+-ec-level = EC لیول
+-qr-code = کیو آر کوڈ
+
+version-normal = { -version }: { $v }, { -ec-level }: { $ec_level }
+version-micro-simple = { -version }: M{ $v }
+version-micro = { -version }: M{ $v }, { -ec-level }: { $ec_level }
+error-ec-level-not-supported = { -error }: { -ec-level } { $ec_level } M{ $v } میں معاون نہیں ہے
+error-data-too-long = { -error }: ڈیٹا بہت طویل ہے
+error-unsupported-charset = { -error }: غیر معاون حروف کا سیٹ
+error-unknown = { -error }: نامعلوم خرابی

@@ -1,0 +1,12 @@
+-version = Sürüm
+-error = Hata
+-ec-level = EC Seviyesi
+-qr-code = QR Kodu
+
+version-normal = { -version }: { $v }, { -ec-level }: { $ec_level }
+version-micro-simple = { -version }: M{ $v }
+version-micro = { -version }: M{ $v }, { -ec-level }: { $ec_level }
+error-ec-level-not-supported = { -error }: { -ec-level } { $ec_level } M{ $v } içinde desteklenmiyor
+error-data-too-long = { -error }: veri çok uzun
+error-unsupported-charset = { -error }: desteklenmeyen karakter seti
+error-unknown = { -error }: bilinmeyen hata
