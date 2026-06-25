@@ -9,6 +9,9 @@ use winio::prelude::*;
 use crate::Result;
 use crate::timer::Timer;
 
+const MARGIN: f64 = 5.0;
+const MARGIN_CANVAS: f64 = 10.0;
+
 /// Root component of the application UI.
 pub struct MainModel {
     /// The main application window.
@@ -142,7 +145,6 @@ impl Component for MainModel {
             self.window,
             self.textbox,
             self.canvas,
-            self.status,
             self.eclevel,
             self.version,
         )
@@ -175,23 +177,28 @@ impl Component for MainModel {
 
         let mut control = layout! {
             StackPanel::new(Orient::Horizontal),
-            self.eclevel => {
-                halign: HAlign::Center,
-                grow: true,
-                margin: Margin::new_all_same(2.0),
-            },
             self.version => {
                 halign: HAlign::Center,
                 grow: true,
-                margin: Margin::new_all_same(2.0),
+                margin: Margin::new_all_same(MARGIN),
+            },
+            self.eclevel => {
+                halign: HAlign::Center,
+                grow: true,
+                margin: Margin::new(MARGIN, MARGIN, MARGIN, 0.0),
             },
         };
         let mut panel = layout! {
             StackPanel::new(Orient::Vertical),
+            self.textbox => {
+                margin: Margin::new_all_same(MARGIN),
+            },
             control,
-            self.textbox,
             self.status,
-            self.canvas => { grow: true },
+            self.canvas => {
+                grow: true,
+                margin: Margin::new_all_same(MARGIN_CANVAS),
+            },
         };
         panel.set_size(csize)?;
 
