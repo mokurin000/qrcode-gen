@@ -34,18 +34,6 @@ jobs:
         with:
           shared-key: ${{ matrix.artifact }}
 
-      # rust-lld linker
-      - name: Configure rust-lld linker
-        if: matrix.target != 'aarch64-linux-android'
-        shell: bash
-        run: |
-          mkdir -p .cargo
-
-          cat >> .cargo/config.toml <<EOF
-          [target.${{ matrix.target }}]
-          linker = "rust-lld"
-          EOF
-
       - name: Build
         shell: bash
         run: |
