@@ -189,7 +189,7 @@ impl Component for MainModel {
                 Ok(false)
             }
             MainMessage::ExportQRcode => {
-                if let Err(e) = self.export_qr().await {
+                if let Err(e) = self.export_png().await {
                     error!("Failed to open file dialog: {e}");
                 }
                 Ok(false)
@@ -242,3 +242,5 @@ impl Component for MainModel {
 
 // QR code generation and drawing logic.
 mod qr;
+
+mod export;
