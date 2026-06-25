@@ -7,9 +7,12 @@ use spdlog::info;
 use winio::prelude::*;
 
 use crate::Result;
+use crate::i18n::format_ftl;
 use crate::timer::Timer;
 
+/// Margin size of widgets
 const MARGIN: f64 = 5.0;
+/// Margin size of the canvas
 const MARGIN_CANVAS: f64 = 10.0;
 
 /// Root component of the application UI.
@@ -28,6 +31,9 @@ pub struct MainModel {
     /// Status text shown below the canvas.
     status: Child<Label>,
 
+    /// Button to export QR code as PNG.
+    export_qr: Child<Button>,
+
     /// Cached QR code result (None = needs regeneration).
     qrcode: Option<std::result::Result<QrCode, QrError>>,
 
@@ -44,6 +50,8 @@ pub enum MainMessage {
     ContentChanged,
     /// Close main window
     Close,
+    /// Export QR code image
+    ExportQRcode,
 }
 
 impl Component for MainModel {
@@ -60,12 +68,14 @@ impl Component for MainModel {
         let bundle = crate::i18n::load_bundle(&locale.to_string())?;
 
         // Format all localized strings from the bundle.
-        let title = self::qr::format_ftl(&bundle, "window-title", None);
-        let ec_tooltip = self::qr::format_ftl(&bundle, "ec-level-tooltip", None);
-        let version_tooltip = self::qr::format_ftl(&bundle, "version-tooltip", None);
-        let textbox_tooltip = self::qr::format_ftl(&bundle, "textbox-tooltip", None);
-        let status_tooltip = self::qr::format_ftl(&bundle, "status-tooltip", None);
-        let version_auto = self::qr::format_ftl(&bundle, "version-auto", None);
+        let title = format_ftl(&bundle, "window-title", None);
+        let ec_tooltip = format_ftl(&bundle, "ec-level-tooltip", None);
+        let version_tooltip = format_ftl(&bundle, "version-tooltip", None);
+        let textbox_tooltip = format_ftl(&bundle, "textbox-tooltip", None);
+        let status_tooltip = format_ftl(&bundle, "status-tooltip", None);
+        let version_auto = format_ftl(&bundle, "version-auto", None);
+        let export_png = format_ftl(&bundle, "export-png-file", None);
+        let export_png_tooltip = format_ftl(&bundle, "export-png-tooltip", None);
 
         // create & initialize the window with localized strings
         init! {
@@ -101,6 +111,10 @@ impl Component for MainModel {
                 halign: HAlign::Center,
                 tooltip: status_tooltip,
             },
+            export_qr: Button = (&window) => {
+                text: export_png,
+                tooltip: export_png_tooltip,
+            }
         }
 
         window.show()?;
@@ -113,6 +127,7 @@ impl Component for MainModel {
             canvas,
             status,
             bundle,
+            export_qr,
 
             qrcode: None,
         })
@@ -135,6 +150,9 @@ impl Component for MainModel {
             },
             self.version => {
                 ComboBoxEvent::Select => MainMessage::ContentChanged,
+            },
+            self.export_qr => {
+                ButtonEvent::Click => MainMessage::ExportQRcode,
             }
         }
     }
@@ -147,6 +165,7 @@ impl Component for MainModel {
             self.canvas,
             self.eclevel,
             self.version,
+            self.export_qr,
         )
     }
 
@@ -167,6 +186,10 @@ impl Component for MainModel {
                 // the root component output stops the application
                 sender.output(());
                 // need not to call `render`
+                Ok(false)
+            }
+            MainMessage::ExportQRcode => {
+                self.export_qr()?;
                 Ok(false)
             }
         }
@@ -194,10 +217,13 @@ impl Component for MainModel {
                 margin: Margin::new_all_same(MARGIN),
             },
             control,
-            self.status,
             self.canvas => {
                 grow: true,
                 margin: Margin::new_all_same(MARGIN_CANVAS),
+            },
+            self.status,
+            self.export_qr => {
+                margin: Margin::new_all_same(MARGIN),
             },
         };
         panel.set_size(csize)?;

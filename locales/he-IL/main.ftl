@@ -17,3 +17,4 @@ textbox-tooltip = טקסט ליצירת קוד QR עבורו
 status-tooltip = סטטוס יצירת קוד QR
 version-auto = אוטומטי
 export-png-file = ייצוא ל-.png
+export-png-tooltip = ייצא את קוד QR כתמונת .PNG

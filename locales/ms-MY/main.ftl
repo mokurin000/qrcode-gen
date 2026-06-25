@@ -17,3 +17,4 @@ textbox-tooltip = Teks untuk menjana kod QR
 status-tooltip = Status penjanaan kod QR
 version-auto = Auto
 export-png-file = Eksport ke .png
+export-png-tooltip = Eksport kod QR sebagai imej .PNG

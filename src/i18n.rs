@@ -2,7 +2,7 @@
 
 use std::sync::LazyLock;
 
-use fluent_bundle::{FluentBundle, FluentResource};
+use fluent_bundle::{FluentArgs, FluentBundle, FluentResource};
 use icu::locale::fallback::LocaleFallbacker;
 use icu::locale::{DataLocale, Locale, locale};
 
@@ -137,6 +137,24 @@ pub fn load_bundle(locale_str: &str) -> Result<FluentBundle<FluentResource>> {
         .map_err(|e| color_eyre::eyre::eyre!("failed to add resource for '{locale_str}': {e:?}"))?;
 
     Ok(bundle)
+}
+
+/// Format a localized message from a Fluent bundle.
+pub(crate) fn format_ftl(
+    bundle: &FluentBundle<FluentResource>,
+    msg_id: &str,
+    args: Option<&FluentArgs<'_>>,
+) -> String {
+    let mut errors = Vec::new();
+    let msg = bundle
+        .get_message(msg_id)
+        .unwrap_or_else(|| panic!("missing fluent message '{msg_id}'"));
+    let pattern = msg
+        .value()
+        .unwrap_or_else(|| panic!("fluent message '{msg_id}' has no value"));
+    bundle
+        .format_pattern(pattern, args, &mut errors)
+        .into_owned()
 }
 
 #[cfg(test)]

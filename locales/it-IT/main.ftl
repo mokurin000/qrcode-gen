@@ -17,3 +17,4 @@ textbox-tooltip = Testo per generare il codice QR
 status-tooltip = Stato della generazione del codice QR
 version-auto = Auto
 export-png-file = Esporta in .png
+export-png-tooltip = Esporta il codice QR come immagine .PNG

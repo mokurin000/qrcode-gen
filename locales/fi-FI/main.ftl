@@ -17,3 +17,4 @@ textbox-tooltip = Teksti, josta QR-koodi luodaan
 status-tooltip = QR-koodin luonnin tila
 version-auto = Automaatti
 export-png-file = Vie .png-muotoon
+export-png-tooltip = Vie QR-koodi .PNG-kuvana

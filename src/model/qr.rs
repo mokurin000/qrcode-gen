@@ -1,6 +1,6 @@
 //! QR code generation and rendering logic.
 
-use fluent_bundle::{FluentArgs, FluentBundle, FluentResource};
+use fluent_bundle::FluentArgs;
 use image::{DynamicImage, Rgba};
 use qrcode::render::Pixel as _;
 use qrcode::types::QrError;
@@ -9,29 +9,17 @@ use spdlog::error;
 use winio::prelude::*;
 
 use crate::Result;
+use crate::i18n::format_ftl;
 use crate::model::MainModel;
 #[cfg(feature = "timing")]
 use crate::timer::Timer;
 
-/// Format a localized message from a Fluent bundle.
-pub(super) fn format_ftl(
-    bundle: &FluentBundle<FluentResource>,
-    msg_id: &str,
-    args: Option<&FluentArgs<'_>>,
-) -> String {
-    let mut errors = Vec::new();
-    let msg = bundle
-        .get_message(msg_id)
-        .unwrap_or_else(|| panic!("missing fluent message '{msg_id}'"));
-    let pattern = msg
-        .value()
-        .unwrap_or_else(|| panic!("fluent message '{msg_id}' has no value"));
-    bundle
-        .format_pattern(pattern, args, &mut errors)
-        .into_owned()
-}
-
 impl MainModel {
+    /// Export the QR code to *.png
+    pub(crate) fn export_qr(&self) -> Result<()> {
+        Ok(())
+    }
+
     /// Update QR code, foottip and draw it on the canvas.
     pub(crate) fn update_qr(&mut self) -> Result<()> {
         let is_dark = ColorTheme::current()? == ColorTheme::Dark;
@@ -163,6 +151,8 @@ impl MainModel {
     ) -> Result<()> {
         match &qr {
             Ok(qr) => {
+                self.export_qr.enable()?;
+
                 let actual_ec = qr.error_correction_level();
                 match qr.version() {
                     Version::Normal(v) => {
@@ -192,6 +182,8 @@ impl MainModel {
                 }
             }
             Err(e) => {
+                self.export_qr.disable()?;
+
                 error!("Cannot generate QR: {e}");
 
                 if let Some(Version::Micro(v)) = version
