@@ -2,20 +2,25 @@
 
 Responsive, lightweight, fast, flexible but not complicated.
 
-## Windows, macOS
+Supports:
 
-Windows 10/11 and macOS are supported.
+- Android
+- Windows
+- macOS
+- GNU/Linux
 
-## Linux
+By the powerful [winio](https://github.com/compio-rs/winio) made by @Berrysoft with 🍬, 🌿, and everything nice.
 
-```bash
-# glibc
-cargo fetch --target "$(uname -m)-unknown-linux-gnu"
-# musl
-cargo fetch --target "$(uname -m)-unknown-linux-musl"
+## Download
 
-# Qt6
-cargo build --release --frozen -F qt
-# GTK4
-cargo build --release --frozen -F gtk
-```
+Pre-built binaries are available on [GitHub Releases](https://github.com/mokurin000/qrcode-gen/releases/tag/nightly).
+
+Notably, for glibc Linux targets, only `glibc >= 2.31` is supported, namely since:
+
+- Debian 11
+- Ubuntu 20.04
+- Fedora 32
+- RHEL/Rocky Linux/AlmaLinux 9
+- openSUSE Leap 15.3
+- SUSE Linux Enterprise Server 15 SP3
+- Slackware 15
