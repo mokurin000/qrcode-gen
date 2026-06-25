@@ -37,9 +37,6 @@ jobs:
 
       - name: 📦️ Setup gradle
         uses: gradle/actions/setup-gradle@v6
-        env:
-          # See https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md
-          ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/29.0.14206865
         with:
           gradle-version: "9.6.0"
 
@@ -49,6 +46,9 @@ jobs:
           shared-key: qrcode-gen-android
 
       - name: 🏗 Build APKs
+        env:
+          # See https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md
+          ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/29.0.14206865
         run: |
           cd android
           gradle assembleRelease
