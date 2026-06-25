@@ -35,20 +35,22 @@ jobs:
           mv cargo-ndk-x86_64-unknown-linux-gnu-v4.1.2/cargo-ndk ~/.cargo/bin/
           rm -rf cargo-ndk-x86_64-unknown-linux-gnu-v4.1.2*
 
-      - name: ♻️ Restore Rust cache
-        uses: Swatinem/rust-cache@v2
-        with:
-          shared-key: qrcode-gen-android
-
-      - name: 🏗️ Build APK
-        uses: gradle/actions/setup-gradle@v4
+      - name: 📦️ Setup gradle
+        uses: gradle/actions/setup-gradle@v6
         env:
           # See https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md
           ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/29.0.14206865
         with:
-          gradle-version: "9.6"
-          arguments: assembleRelease
+          gradle-version: "9.6.0"
           build-root-directory: android
+
+      - name: 🏗 Build APKs
+        run: gradle assembleRelease
+
+      - name: ♻️ Restore Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: qrcode-gen-android
 
       - name: 📁 Collect split APKs
         shell: bash
