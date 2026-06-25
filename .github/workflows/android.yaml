@@ -43,13 +43,15 @@ jobs:
         with:
           gradle-version: "9.6.0"
 
-      - name: 🏗 Build APKs
-        run: gradle assembleRelease
-
       - name: ♻️ Restore Rust cache
         uses: Swatinem/rust-cache@v2
         with:
           shared-key: qrcode-gen-android
+
+      - name: 🏗 Build APKs
+        run: |
+          cd android
+          gradle assembleRelease
 
       - name: 📁 Collect split APKs
         shell: bash
