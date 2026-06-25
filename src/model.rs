@@ -3,7 +3,7 @@
 use fluent_bundle::{FluentBundle, FluentResource};
 use qrcode::QrCode;
 use qrcode::types::QrError;
-use spdlog::info;
+use spdlog::{error, info};
 use winio::prelude::*;
 
 use crate::Result;
@@ -189,7 +189,9 @@ impl Component for MainModel {
                 Ok(false)
             }
             MainMessage::ExportQRcode => {
-                self.export_qr()?;
+                if let Err(e) = self.export_qr().await {
+                    error!("Failed to open file dialog: {e}");
+                }
                 Ok(false)
             }
         }

@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+compio = "0.19.0"
+
 # Error handling, logging
 color-eyre = "0.6.5"
 spdlog-rs = { version = "0.5.3", default-features = false, features = [
@@ -15,15 +17,19 @@ spdlog-rs = { version = "0.5.3", default-features = false, features = [
 # GUI
 winio = { version = "0.12.0-rc.5", features = [
     "win32-dark-mode",
+    "compio-compat",
 ], default-features = false }
-
-# QRCode
-image = { version = "0.25.10", default-features = false }
 
 # i18n
 fluent-bundle = "0.16"
 sys-locale = "0.3"
 icu = "2.2"
+
+# QRCode
+[dependencies.image]
+version = "0.25.10"
+default-features = false
+features = ["png"]
 
 [dependencies.qrcode]
 version = "0.14"
