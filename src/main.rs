@@ -1,7 +1,10 @@
+//! Application entry point.
+
 #![windows_subsystem = "windows"]
 
 use main::Result;
 
+/// Desktop entry point (Windows / Linux / macOS).
 #[cfg(not(target_os = "android"))]
 fn main() -> Result<()> {
     use spdlog::prelude::*;
@@ -13,17 +16,16 @@ fn main() -> Result<()> {
 
     let init = Timer::default();
 
-    // Try attach to console on Windows.
-    //
-    // By default no console window pop-up's, only if we have
-    // a parent process with console attached, we output logs
-    // to the terminal.
+    // Try to attach to the parent console on Windows.
+    // By default no console window pops up. If the parent
+    // process has a console, logs go to the terminal.
     #[cfg(windows)]
     let _ = main::windows::try_attach_console();
 
-    // We filter log levels at compile-time.
+    // Enable all log levels (filtered at compile time).
     spdlog::default_logger().set_level_filter(LevelFilter::All);
-    // color-eyre would not enable VT100 support on Windows
+    // color-eyre does not enable VT100 on Windows on its own.
+    // Currently, spdlog-rs handled this.
     color_eyre::install()?;
 
     Ok(App::builder()
@@ -32,6 +34,7 @@ fn main() -> Result<()> {
         .block_on(MainModel::run_until_event(init))?)
 }
 
+/// Android entry point is `android_main` instead.
 #[cfg(target_os = "android")]
 fn main() -> Result<()> {
     unreachable!("Android entry point is `android_main` in `android.rs`")

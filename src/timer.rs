@@ -1,16 +1,23 @@
+//! Utility to measure and log elapsed time.
+
 use std::time::Instant;
 
 use spdlog::info;
 
+/// Logs elapsed time when dropped.
+///
+/// Records the time at creation, then logs how long it lived.
 pub struct Timer(Instant, &'static str);
 
 impl Default for Timer {
+    /// Create a timer with a default tip message.
     fn default() -> Self {
-        Self(Instant::now(), "Initialization finished")
+        Self::with_tip("Initialization finished")
     }
 }
 
 impl Timer {
+    /// Create a timer with a custom label.
     pub fn with_tip(tip: &'static str) -> Self {
         Self(Instant::now(), tip)
     }

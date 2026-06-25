@@ -1,3 +1,5 @@
+//! Main GUI component for the QR code generator.
+
 use qrcode::QrCode;
 use qrcode::types::QrError;
 use winio::prelude::*;
@@ -5,15 +7,23 @@ use winio::prelude::*;
 use crate::Result;
 use crate::timer::Timer;
 
+/// Root component of the application UI.
 pub struct MainModel {
+    /// The main application window.
     window: Child<Window>,
 
+    /// Drop-down to select error correction level.
     eclevel: Child<ComboBox>,
+    /// Drop-down to select QR code version.
     version: Child<ComboBox>,
+    /// Input field for the text to encode.
     textbox: Child<TextBox>,
+    /// Area where the QR code image is drawn.
     canvas: Child<Canvas>,
+    /// Status text shown below the canvas.
     foottip: Child<Label>,
 
+    /// Cached QR code result (None = needs regeneration).
     qrcode: Option<std::result::Result<QrCode, QrError>>,
 }
 
@@ -174,4 +184,5 @@ impl Component for MainModel {
     }
 }
 
+// QR code generation and drawing logic.
 mod qr;

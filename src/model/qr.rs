@@ -1,3 +1,5 @@
+//! QR code generation and rendering logic.
+
 use image::{DynamicImage, Rgba};
 use qrcode::render::Pixel as _;
 use qrcode::types::QrError;
@@ -77,6 +79,8 @@ impl MainModel {
         Ok(())
     }
 
+    /// Get the selected QR code version.
+    /// 0 = auto, 1-40 = normal version, 41-44 = Micro QR M1-M4.
     fn version(&self) -> Result<Option<Version>> {
         Ok(self.version.selection()?.and_then(|ver| match ver {
             _ if ver == 0 => None,
@@ -85,6 +89,7 @@ impl MainModel {
         }))
     }
 
+    /// Get the selected error correction level.
     fn ec_level(&self) -> Result<EcLevel> {
         Ok(match self.eclevel.selection()? {
             None | Some(0) => EcLevel::L,
@@ -95,6 +100,8 @@ impl MainModel {
         })
     }
 
+    /// Generate a QR code with the given parameters.
+    /// Uses cached result if available.
     fn make_qr(
         &mut self,
         ec_level: EcLevel,
@@ -119,6 +126,7 @@ impl MainModel {
         qr
     }
 
+    /// Show QR code info or error message in the status bar.
     fn update_foottip(
         &mut self,
         qr: &std::result::Result<QrCode, QrError>,

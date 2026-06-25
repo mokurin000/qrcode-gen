@@ -1,3 +1,5 @@
+//! Android entry point for the QR code generator app.
+
 use android_activity::AndroidApp;
 use spdlog::error;
 use winio::prelude::*;
@@ -5,6 +7,7 @@ use winio::prelude::*;
 use crate::model::MainModel;
 use crate::timer::Timer;
 
+/// Native entry point called by the Android system.
 #[unsafe(no_mangle)]
 fn android_main(app: AndroidApp) {
     let init = Timer::default();
