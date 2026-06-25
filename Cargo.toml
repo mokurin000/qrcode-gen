@@ -60,10 +60,11 @@ codegen-units = 1
 # reduce binary size at the cost of abort
 panic = "abort"
 # optimize for smaller size
-opt-level = "s"
+opt-level = 3
+
+strip = "symbols"
 # full debuginfo too bloated to package
 debug = "limited"
-strip = "symbols"
 # .dSYM symlink on macOS, .dwp on Linux, .pdb on Windows
 split-debuginfo = "packed"
 
