@@ -8,6 +8,7 @@ on:
     paths:
       - "**.rs"
       - "Cargo.toml"
+      - "android/**"
     tags:
       - v*
 
@@ -31,12 +32,16 @@ jobs:
   linux-glibc:
     uses: ./.github/workflows/linux-glibc.yaml
 
+  android:
+    uses: ./.github/workflows/android.yaml
+
   release:
     needs:
       - windows-10
       - windows-11
       - macos
       - linux-glibc
+      - android
 
     runs-on: ubuntu-24.04
 
