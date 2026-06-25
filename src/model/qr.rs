@@ -61,8 +61,12 @@ impl MainModel {
         };
 
         let qr_size = image.size()?;
-        let left_top = (actual_size - qr_size) / 2.0;
-        let rect = Rect::new(Point::origin() + left_top, qr_size);
+        let top_left = (actual_size - qr_size) / 2.0;
+
+        #[cfg(target_os = "android")]
+        let top_left = Size::new(top_left.width, top_left.height / 2.0);
+
+        let rect = Rect::new(Point::origin() + top_left, qr_size);
 
         #[cfg(all(debug_assertions, target_os = "android"))]
         {
@@ -122,7 +126,7 @@ impl MainModel {
             qrcode::QrCode::with_error_correction_level(data, ec_level)
         };
 
-        _ = self.update_foottip(&qr, version, ec_level);
+        _ = self.update_status(&qr, version, ec_level);
 
         qr
     }
@@ -143,7 +147,7 @@ impl MainModel {
     }
 
     /// Show QR code info or error message in the status bar.
-    fn update_foottip(
+    fn update_status(
         &mut self,
         qr: &std::result::Result<QrCode, QrError>,
         version: Option<Version>,
@@ -158,7 +162,7 @@ impl MainModel {
                         args.set("v", v as i64);
                         args.set("ec_level", format!("{actual_ec:?}"));
                         let text = self.format_ftl("version-normal", Some(&args));
-                        self.foottip.set_text(text)?;
+                        self.status.set_text(text)?;
                     }
                     // https://www.qrcode.com/en/codes/microqr.html
                     // M1 does not support any error corrction
@@ -168,14 +172,14 @@ impl MainModel {
                         let mut args = FluentArgs::new();
                         args.set("v", v as i64);
                         let text = self.format_ftl("version-micro-simple", Some(&args));
-                        self.foottip.set_text(text)?;
+                        self.status.set_text(text)?;
                     }
                     Version::Micro(v) => {
                         let mut args = FluentArgs::new();
                         args.set("v", v as i64);
                         args.set("ec_level", format!("{actual_ec:?}"));
                         let text = self.format_ftl("version-micro", Some(&args));
-                        self.foottip.set_text(text)?;
+                        self.status.set_text(text)?;
                     }
                 }
             }
@@ -191,7 +195,7 @@ impl MainModel {
                     args.set("v", v as i64);
                     args.set("ec_level", format!("{ec_level:?}"));
                     let text = self.format_ftl("error-ec-level-not-supported", Some(&args));
-                    self.foottip.set_text(text)?;
+                    self.status.set_text(text)?;
                 } else {
                     let msg_id = match e {
                         QrError::DataTooLong => "error-data-too-long",
@@ -206,7 +210,7 @@ impl MainModel {
                         QrError::InvalidEciDesignator => "error-unknown",
                     };
                     let text = self.format_ftl(msg_id, None);
-                    self.foottip.set_text(text)?;
+                    self.status.set_text(text)?;
                 }
             }
         }

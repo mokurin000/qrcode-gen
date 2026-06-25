@@ -22,7 +22,7 @@ pub struct MainModel {
     /// Area where the QR code image is drawn.
     canvas: Child<Canvas>,
     /// Status text shown below the canvas.
-    foottip: Child<Label>,
+    status: Child<Label>,
 
     /// Cached QR code result (None = needs regeneration).
     qrcode: Option<std::result::Result<QrCode, QrError>>,
@@ -79,7 +79,7 @@ impl Component for MainModel {
             textbox: TextBox = (&window) => {
                 tooltip: "Text to generate QRCode for.",
             },
-            foottip: Label = (&window) => {
+            status: Label = (&window) => {
                 halign: HAlign::Center,
                 tooltip: "Status of the QRCode generation.",
             },
@@ -98,9 +98,10 @@ impl Component for MainModel {
             eclevel,
             version,
             canvas,
-            foottip,
-            qrcode: None,
+            status,
             bundle,
+
+            qrcode: None,
         })
     }
 
@@ -131,7 +132,7 @@ impl Component for MainModel {
             self.window,
             self.textbox,
             self.canvas,
-            self.foottip,
+            self.status,
             self.eclevel,
             self.version,
         )
@@ -179,8 +180,8 @@ impl Component for MainModel {
             StackPanel::new(Orient::Vertical),
             control,
             self.textbox,
+            self.status,
             self.canvas => { grow: true },
-            self.foottip,
         };
         panel.set_size(csize)?;
 
