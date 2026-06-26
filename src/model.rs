@@ -11,9 +11,9 @@ use crate::i18n::format_ftl;
 use crate::timer::Timer;
 
 /// Margin size of widgets
-const MARGIN: f64 = 5.0;
+const MARGIN: f64 = 8.0;
 /// Margin size of the canvas
-const MARGIN_CANVAS: f64 = 10.0;
+const MARGIN_CANVAS: f64 = 16.0;
 
 /// Root component of the application UI.
 pub struct MainModel {
@@ -245,11 +245,11 @@ impl Component for MainModel {
             StackPanel::new(Orient::Horizontal),
             self.export_png => {
                 grow: true,
-                margin: Margin::new_all_same(MARGIN),
+                margin: Margin::new(0.0, MARGIN, MARGIN, MARGIN),
             },
             self.export_svg => {
                 grow: true,
-                margin: Margin::new(MARGIN, MARGIN, MARGIN, 0.0),
+                margin: Margin::new(0.0, MARGIN, MARGIN, 0.0),
             },
         };
 
