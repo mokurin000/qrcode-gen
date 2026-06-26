@@ -137,24 +137,6 @@ impl Component for MainModel {
             }
         }
 
-        #[cfg(target_os = "android")]
-        let radius = {
-            use jni::{jni_sig, jni_str};
-
-            let obj = window.as_window().to_android();
-            jni::vm::JavaVM::singleton()?.attach_current_thread(move |env| {
-                let result = env.call_method(
-                    obj,
-                    jni_str!("getBottomLeftCornerRadius"),
-                    jni_sig!(() -> int),
-                    &[],
-                )?;
-                Result::Ok(result.into_int()?)
-            })? as f64
-        };
-        #[cfg(target_os = "android")]
-        info!("RoundedCorner set to: {radius}px");
-
         window.show()?;
 
         Ok(Self {
@@ -282,18 +264,15 @@ impl Component for MainModel {
                 margin: Margin::new_all_same(MARGIN),
             },
             control,
+            export,
             self.canvas => {
                 grow: true,
                 margin: Margin::new_all_same(MARGIN_CANVAS),
             },
             self.status,
-            export => {
-                #[cfg(target_os = "android")]
-                margin: Margin::new(self.radius, self.radius, 0.0, 0.0),
-            },
         };
-        panel.set_size(csize)?;
 
+        panel.set_size(csize)?;
         self.update_qr()?;
 
         Ok(())
