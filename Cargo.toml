@@ -38,7 +38,9 @@ default-features = false
 features = ["image", "svg"]
 
 [target.'cfg(target_os = "android")'.dependencies]
+# keep sync with winio
 android-activity = "0.6"
+jni = "0.22"
 
 [lib]
 name = "main"

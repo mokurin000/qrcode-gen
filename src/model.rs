@@ -41,6 +41,9 @@ pub struct MainModel {
 
     /// Fluent i18n bundle for the resolved system locale.
     bundle: FluentBundle<FluentResource>,
+
+    #[cfg(target_os = "android")]
+    radius: f64,
 }
 
 pub enum MainMessage {
@@ -134,6 +137,22 @@ impl Component for MainModel {
             }
         }
 
+        #[cfg(target_os = "android")]
+        let radius = {
+            use jni::{jni_sig, jni_str};
+
+            let obj = window.as_window().to_android();
+            jni::vm::JavaVM::singleton()?.attach_current_thread(move |env| {
+                let result = env.call_method(
+                    obj,
+                    jni_str!("getBottomLeftCornerRadius"),
+                    jni_sig!(() -> int),
+                    &[],
+                )?;
+                Result::Ok(result.into_int()?)
+            })? as f64
+        };
+
         window.show()?;
 
         Ok(Self {
@@ -148,6 +167,8 @@ impl Component for MainModel {
             export_svg,
 
             qrcode: None,
+            #[cfg(target_os = "android")]
+            radius,
         })
     }
 
@@ -227,7 +248,12 @@ impl Component for MainModel {
     }
 
     fn render(&mut self, _sender: &ComponentSender<Self>) -> Result<()> {
-        let csize = self.window.client_size()?;
+        #[allow(unused_mut)]
+        let mut csize = self.window.client_size()?;
+        #[cfg(target_os = "android")]
+        {
+            csize.height -= self.radius;
+        }
 
         let mut control = layout! {
             StackPanel::new(Orient::Horizontal),
@@ -264,10 +290,7 @@ impl Component for MainModel {
                 margin: Margin::new_all_same(MARGIN_CANVAS),
             },
             self.status,
-            export => {
-                #[cfg(target_os = "android")]
-                margin: Margin::new(0.0, 0.0, 100.0, 0.0),
-            },
+            export,
         };
         panel.set_size(csize)?;
 
