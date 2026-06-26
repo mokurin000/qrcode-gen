@@ -229,7 +229,7 @@ impl Component for MainModel {
     fn render(&mut self, _sender: &ComponentSender<Self>) -> Result<()> {
         let csize = self.window.client_size()?;
 
-        let mut control = layout! {
+        let mut options = layout! {
             StackPanel::new(Orient::Horizontal),
             self.version => {
                 grow: true,
@@ -241,7 +241,7 @@ impl Component for MainModel {
             },
         };
 
-        let mut export = layout! {
+        let mut export_qr = layout! {
             StackPanel::new(Orient::Horizontal),
             self.export_png => {
                 grow: true,
@@ -258,8 +258,8 @@ impl Component for MainModel {
             self.textbox => {
                 margin: Margin::new_all_same(MARGIN),
             },
-            control,
-            export,
+            options,
+            export_qr,
             self.canvas => {
                 grow: true,
                 margin: Margin::new_all_same(MARGIN_CANVAS),
