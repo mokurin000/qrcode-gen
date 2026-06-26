@@ -41,9 +41,6 @@ pub struct MainModel {
 
     /// Fluent i18n bundle for the resolved system locale.
     bundle: FluentBundle<FluentResource>,
-
-    #[cfg(target_os = "android")]
-    radius: f64,
 }
 
 pub enum MainMessage {
@@ -151,8 +148,6 @@ impl Component for MainModel {
             export_svg,
 
             qrcode: None,
-            #[cfg(target_os = "android")]
-            radius,
         })
     }
 
