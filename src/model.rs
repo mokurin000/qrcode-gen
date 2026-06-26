@@ -229,27 +229,27 @@ impl Component for MainModel {
     fn render(&mut self, _sender: &ComponentSender<Self>) -> Result<()> {
         let csize = self.window.client_size()?;
 
-        let mut options = layout! {
-            StackPanel::new(Orient::Horizontal),
+        let mut control_panel = layout! {
+            Grid::from_str("1*,1*", "1*,1*").unwrap(),
             self.version => {
-                grow: true,
+                row: 0,
+                column: 0,
                 margin: Margin::new_all_same(MARGIN),
             },
             self.eclevel => {
-                grow: true,
+                row: 0,
+                column: 1,
                 margin: Margin::new(MARGIN, MARGIN, MARGIN, 0.0),
             },
-        };
-
-        let mut export_qr = layout! {
-            StackPanel::new(Orient::Horizontal),
             self.export_png => {
-                grow: true,
-                margin: Margin::new(0.0, MARGIN, MARGIN, MARGIN),
+                row: 1,
+                column: 0,
+                margin: Margin::new(MARGIN / 3.0, MARGIN, MARGIN, MARGIN),
             },
             self.export_svg => {
-                grow: true,
-                margin: Margin::new(0.0, MARGIN, MARGIN, 0.0),
+                row: 1,
+                column: 1,
+                margin: Margin::new(MARGIN / 3.0, MARGIN, MARGIN, 0.0),
             },
         };
 
@@ -258,8 +258,7 @@ impl Component for MainModel {
             self.textbox => {
                 margin: Margin::new_all_same(MARGIN),
             },
-            options,
-            export_qr,
+            control_panel,
             self.canvas => {
                 grow: true,
                 margin: Margin::new_all_same(MARGIN_CANVAS),
