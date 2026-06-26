@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use compio::BufResult;
 use compio::io::AsyncWriteAtExt;
 use compio::runtime::{spawn, spawn_blocking};
@@ -13,11 +15,16 @@ use crate::Result;
 use crate::model::MainModel;
 
 impl MainModel {
+    fn new_filename(stem: impl Display) -> String {
+        let uuid = uuid::Uuid::now_v7();
+        format!("{uuid}{stem}")
+    }
+
     /// Export the QR code to *.png
     pub(crate) async fn export_png(&self) -> Result<()> {
         let Some(png_file) = FileBox::new()
             .add_filter(("PNG Images", "*.png"))
-            .filename("qrcode.png")
+            .filename(Self::new_filename(".png"))
             .title({
                 let mut args = FluentArgs::new();
                 args.set("format", "png");
@@ -82,7 +89,7 @@ impl MainModel {
     pub(crate) async fn export_svg(&self) -> Result<()> {
         let Some(svg_file) = FileBox::new()
             .add_filter(("SVG Images", "*.svg"))
-            .filename("qrcode.svg")
+            .filename(Self::new_filename(".svg"))
             .title({
                 let mut args = FluentArgs::new();
                 args.set("format", "svg");
