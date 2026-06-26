@@ -152,6 +152,8 @@ impl Component for MainModel {
                 Result::Ok(result.into_int()?)
             })? as f64
         };
+        #[cfg(target_os = "android")]
+        info!("RoundedCorner set to: {radius}px");
 
         window.show()?;
 
@@ -248,12 +250,7 @@ impl Component for MainModel {
     }
 
     fn render(&mut self, _sender: &ComponentSender<Self>) -> Result<()> {
-        #[allow(unused_mut)]
-        let mut csize = self.window.client_size()?;
-        #[cfg(target_os = "android")]
-        {
-            csize.height -= self.radius;
-        }
+        let csize = self.window.client_size()?;
 
         let mut control = layout! {
             StackPanel::new(Orient::Horizontal),
@@ -290,7 +287,10 @@ impl Component for MainModel {
                 margin: Margin::new_all_same(MARGIN_CANVAS),
             },
             self.status,
-            export,
+            export => {
+                #[cfg(target_os = "android")]
+                margin: Margin::new(self.radius, self.radius, 0.0, 0.0),
+            },
         };
         panel.set_size(csize)?;
 
