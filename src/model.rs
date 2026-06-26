@@ -264,7 +264,10 @@ impl Component for MainModel {
                 margin: Margin::new_all_same(MARGIN_CANVAS),
             },
             self.status,
-            export,
+            export => {
+                #[cfg(target_os = "android")]
+                margin: Margin::new(0.0, 0.0, 100.0, 0.0),
+            },
         };
         panel.set_size(csize)?;
 
