@@ -2262,6 +2262,7 @@ dependencies = [
  "fluent-bundle",
  "icu_locale_core",
  "image",
+ "jni",
  "language-matcher",
  "qrcode",
  "spdlog-rs",

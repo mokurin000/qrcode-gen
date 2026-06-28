@@ -3,7 +3,7 @@
 use fluent_bundle::{FluentArgs, FluentBundle, FluentResource};
 use qrcode::QrCode;
 use qrcode::types::QrError;
-use spdlog::{error, info};
+use spdlog::prelude::*;
 use winio::prelude::*;
 
 use crate::Result;
@@ -67,6 +67,12 @@ impl Component for MainModel {
     type Message = MainMessage;
 
     async fn init(_init: Self::Init<'_>, _sender: &ComponentSender<Self>) -> Result<Self> {
+        // Enable all log levels (filtered at compile time).
+        spdlog::default_logger().set_level_filter(LevelFilter::All);
+        // color-eyre does not enable VT100 on Windows on its own.
+        // Currently, spdlog-rs handled this.
+        color_eyre::install()?;
+
         // Resolve system locale and load the Fluent bundle before creating widgets.
         let sys_locale = sys_locale::get_locale().unwrap_or_else(|| "en-US".into());
         let locale = crate::i18n::resolve_locale(&sys_locale);
@@ -227,7 +233,29 @@ impl Component for MainModel {
     }
 
     fn render(&mut self, _sender: &ComponentSender<Self>) -> Result<()> {
-        let csize = self.window.client_size()?;
+        #[allow(unused_mut)]
+        let mut csize = self.window.client_size()?;
+
+        #[cfg(target_os = "android")]
+        {
+            use jni::{jni_sig, jni_str};
+
+            let radius = {
+                let obj = self.window.as_window().to_android();
+                jni::vm::JavaVM::singleton()?.attach_current_thread(move |env| {
+                    let result = env.call_method(
+                        obj,
+                        jni_str!("getBottomLeftCornerRadius"),
+                        jni_sig!(() -> int),
+                        &[],
+                    )?;
+                    Result::Ok(result.into_int()?)
+                })? as f64
+            };
+
+            debug!("got radius: {radius}px");
+            csize.height -= radius;
+        }
 
         let mut control_panel = layout! {
             Grid::from_str("1*,1*", "1*,1*").unwrap(),
@@ -258,12 +286,12 @@ impl Component for MainModel {
             self.textbox => {
                 margin: Margin::new_all_same(MARGIN),
             },
-            control_panel,
+            self.status,
             self.canvas => {
                 grow: true,
                 margin: Margin::new_all_same(MARGIN_CANVAS),
             },
-            self.status,
+            control_panel,
         };
 
         panel.set_size(csize)?;
