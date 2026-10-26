@@ -1,6 +1,6 @@
 //! Application entry point.
 
-#![windows_subsystem = "windows"]
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use main::Result;
 
@@ -14,12 +14,6 @@ fn main() -> Result<()> {
     use main::timer::Timer;
 
     let init = Timer::default();
-
-    // Try to attach to the parent console on Windows.
-    // By default no console window pops up. If the parent
-    // process has a console, logs go to the terminal.
-    #[cfg(windows)]
-    let _ = main::windows::try_attach_console();
 
     App::builder()
         .name(APP_ID)

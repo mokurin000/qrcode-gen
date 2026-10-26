@@ -3,8 +3,6 @@
 pub mod i18n;
 pub mod model;
 pub mod timer;
-#[cfg(windows)]
-pub mod windows;
 
 /// Shorthand for `Result<T, color_eyre::Report>`.
 pub type Result<T> = std::result::Result<T, color_eyre::Report>;
