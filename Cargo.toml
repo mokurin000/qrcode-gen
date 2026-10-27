@@ -20,7 +20,7 @@ spdlog-rs = { version = "0.5.3", default-features = false, features = [
 ] }
 
 # GUI
-winio = { version = "0.12.0-rc.5", features = [
+winio = { version = "0.12.0", features = [
     "win32-dark-mode",
     "compio-compat",
 ], default-features = false }
