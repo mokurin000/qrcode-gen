@@ -38,8 +38,6 @@ jobs:
 
       - name: 🏗 Build APKs
         env:
-          ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/30.0.16248370
-          ANDROID_NDK_ROOT: /usr/local/lib/android/sdk/ndk/30.0.16248370
           JAVA_HOME: ${{ env.JAVA_HOME_21_X64 }}
         run: |
           cd android

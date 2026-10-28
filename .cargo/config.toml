@@ -1,5 +1,2 @@
 [build]
 rustflags = "-Z location-detail=none"
-
-[target.'cfg(not(target_os = "android"))']
-linker = "rust-lld"
