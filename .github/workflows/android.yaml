@@ -13,12 +13,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: ☕️ Setup Java (Temurin 17)
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: "17"
-
       - name: 🦀 Setup Rust
         run: |
           rustup default nightly
