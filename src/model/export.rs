@@ -30,7 +30,7 @@ impl MainModel {
                 args.set("format", "png");
                 self.format_ftl("export-tooltip", Some(&args))
             })
-            .save(&self.window)
+            .save(&self.window)?
             .await?
         else {
             // user cancellation
@@ -95,7 +95,7 @@ impl MainModel {
                 args.set("format", "svg");
                 self.format_ftl("export-tooltip", Some(&args))
             })
-            .save(&self.window)
+            .save(&self.window)?
             .await?
         else {
             // user cancellation
